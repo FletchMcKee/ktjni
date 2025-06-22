@@ -56,8 +56,7 @@ Run the following aggregate command to generate JNI headers for all variants of 
 ```
 
 > [!NOTE]
-> The above command is an aggregate task that triggers all variant-specific JNI header tasks. Because header generation depends on `.class`
-> files, running this task will also compile the corresponding source sets if not already compiled.
+> Because header generation depends on `.class` files, running this task will also compile the corresponding source sets if not already compiled.
 > For a more fine-grained approach, you can discover the relevant Ktjni commands by running the following:
 > ```console
 > ./gradlew tasks --group "ktjni"
@@ -71,7 +70,6 @@ Run the following aggregate command to generate JNI headers for all variants of 
 > ```yml
 > - name: Generate JNI headers
 >   run: ./gradlew generateJniHeaders
->
 > ```
 
 ## Example
@@ -147,3 +145,21 @@ JNIEXPORT jbyteArray JNICALL Java_com_example_Crypto_sha256
 - [x] **Java** (via `java` or `java-library` plugins)
 - [x] **Scala** (`scala` plugin)
 - [x] **Android build variants** (`com.android.library` or `com.android.application`)
+
+## License
+
+```
+Copyright 2025 Colin McKee
+ 
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```
