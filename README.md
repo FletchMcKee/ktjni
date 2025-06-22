@@ -2,9 +2,7 @@
 
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.fletchmckee.ktjni/ktjni-plugin)](https://search.maven.org/search?q=g:io.github.fletchmckee.ktjni)
 ![Build status](https://github.com/fletchmckee/ktjni/actions/workflows/build.yml/badge.svg)
-![Kotlin](https://img.shields.io/badge/Kotlin-7F52FF?style=flat&logo=kotlin&logoColor=white)
-![Java](https://img.shields.io/badge/Java-ED8B00?style=flat&logo=openjdk&logoColor=white)
-![Scala](https://img.shields.io/badge/Scala-DC322F?style=flat&logo=scala&logoColor=white)
+![JVM](https://img.shields.io/badge/JVM-007396?style=flat&logo=java&logoColor=white)
 ![Android](https://img.shields.io/badge/Android-3DDC84?style=flat&logo=android&logoColor=white)
 
 **Ktjni** is a Gradle plugin that generates JNI headers from Kotlin, Java, or Scala classes containing external native methods.
@@ -12,15 +10,6 @@
 Manually writing JNI headers is tedious, error-prone, and a common source of runtime crashes due to signature mismatches. This plugin eliminates that pain by scanning compiled `.class` files using the [ASM](https://asm.ow2.io/) library to generate accurate, up-to-date headers that match your JVM method signatures.
 
 Since all JVM languages compile native method declarations to the same core bytecode structure, Ktjni works consistently across Kotlin, Java, and Scala codebases, regardless of compiler-specific attributes or metadata differences.
-
-> [!NOTE]
-> Header generation currently requires manual execution and does not automatically integrate with the build process.
->
-> **CI/CD Usage:** You can add header generation as a build step in your pipelines:
-> ```yml
-> - name: Generate JNI headers
->   run: ./gradlew generateJniHeaders
-> ```
 
 ## Getting Started
 
@@ -30,7 +19,9 @@ Since all JVM languages compile native method declarations to the same core byte
 pluginManagement {
   repositories {
     mavenCentral() // Release versions
-    maven { url = uri("https://central.sonatype.com/repository/maven-snapshots/") } // SNAPSHOT versions
+    maven {
+      // SNAPSHOT versions
+      url = uri("https://central.sonatype.com/repository/maven-snapshots/") }
   }
 }
 ```
@@ -56,7 +47,9 @@ ktjni {
 Whether using the default `outputDir` or a custom location, the `sourceType` and `sourceSet` are added as subdirectories for configuration cache correctness.
 
 ## Usage
-**Run the following aggregate command to generate JNI headers for any files containing external native methods for all variants**
+Header generation currently requires manual execution and does not automatically integrate with the build process.
+
+Run the following aggregate command to generate JNI headers for all variants of files containing external native methods:
 
 ```console
 ./gradlew generateJniHeaders
@@ -72,6 +65,13 @@ Whether using the default `outputDir` or a custom location, the `sourceType` and
 > And then you can select the relevant tasks based on the above output. For example:
 > ```console
 > ./gradlew :app:generateKotlinReleaseJniHeaders
+> ```
+> 
+> **CI/CD Usage:** You can add header generation as a build step in your pipelines:
+> ```yml
+> - name: Generate JNI headers
+>   run: ./gradlew generateJniHeaders
+>
 > ```
 
 ## Example
