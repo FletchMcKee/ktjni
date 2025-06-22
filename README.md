@@ -26,22 +26,18 @@ pluginManagement {
 }
 ```
 
-**2. Add the Ktjni plugin to your project's build.gradle.kts and choose your header output directory location**
+**2. Add the Ktjni plugin to your project's build.gradle.kts and choose your header output directory**
 
 ```gradle
 plugins {
   id("io.github.fletchmckee.ktjni") version "0.1.0"
 }
 
+// If no `outputDir` is specified, it defaults to the following location:
+// {projectDir}/build/generated/ktjni/{sourceType}/{sourceSet}
 ktjni {
-  // Optional
   outputDir = layout.buildDirectory.dir("custom")
 }
-```
-
-**Note:** If no `outputDir` is specified, it defaults to the following location:
-```
-{projectDir}/build/generated/ktjni/{sourceType}/{sourceSet}
 ```
 
 Whether using the default `outputDir` or a custom location, the `sourceType` and `sourceSet` are added as subdirectories for configuration cache correctness.
@@ -49,27 +45,17 @@ Whether using the default `outputDir` or a custom location, the `sourceType` and
 ## Usage
 Header generation currently requires manual execution and does not automatically integrate with the build process.
 
-Run the following aggregate command to generate JNI headers for all variants of files containing external native methods:
+Execute the following aggregate command to generate JNI headers for all variants of files containing external native methods:
 
 ```console
 ./gradlew generateJniHeaders
 ```
 
 > [!NOTE]
-> Because header generation depends on `.class` files, running this task will also compile the corresponding source sets if not already compiled.
-> For a more fine-grained approach, you can discover the relevant Ktjni commands by running the following:
+> Executing this task will compile the corresponding source sets if not already compiled.
+> For a more fine-grained approach, you can discover the relevant Ktjni commands with the following:
 > ```console
 > ./gradlew tasks --group "ktjni"
-> ```
-> And then you can select the relevant tasks based on the above output. For example:
-> ```console
-> ./gradlew :app:generateKotlinReleaseJniHeaders
-> ```
-> 
-> **CI/CD Usage:** You can add header generation as a build step in your pipelines:
-> ```yml
-> - name: Generate JNI headers
->   run: ./gradlew generateJniHeaders
 > ```
 
 ## Example
@@ -155,7 +141,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    https://www.apache.org/licenses/LICENSE-2.0
+  https://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
