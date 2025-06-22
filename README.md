@@ -20,8 +20,8 @@ pluginManagement {
   repositories {
     mavenCentral() // Release versions
     maven {
-      // SNAPSHOT versions
-      url = uri("https://central.sonatype.com/repository/maven-snapshots/") }
+      url = uri("https://central.sonatype.com/repository/maven-snapshots/")  // Snapshot versions
+    }
   }
 }
 ```
