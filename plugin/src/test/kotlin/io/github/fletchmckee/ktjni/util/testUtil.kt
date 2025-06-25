@@ -93,8 +93,8 @@ internal fun File.writeKmpBuildFile(kotlinJdkVersion: KotlinJdkVersion) = writeT
   kotlin {
     jvm {
       compilations.all {
-        kotlinOptions {
-          jvmTarget = "${kotlinJdkVersion.jdk}"
+        compilerOptions.configure {
+          jvmTarget.set(JvmTarget.JVM_${kotlinJdkVersion.jdk})
         }
       }
 
