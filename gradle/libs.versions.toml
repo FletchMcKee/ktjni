@@ -15,7 +15,7 @@ ktlint = "1.6.0"
 lifecycleRuntimeKtx = "2.9.4"
 mavenPublish = "0.34.0"
 minSdk = "26"
-spotless = "7.2.1"
+spotless = "8.0.0"
 targetSdk = "36"
 
 [libraries]
