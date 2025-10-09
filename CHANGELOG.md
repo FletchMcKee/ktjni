@@ -2,9 +2,15 @@
 
 ## [Unreleased]
 
+## [0.1.1] - 2025-10-09
+
+Changed:
+
+- ASM 9.9 release
+
 ## [0.1.0] - 2025-06-09
 
-Initial Release
+- Initial Release
 
 ## [0.0.1-rc01] - 2025-06-09
 
@@ -40,9 +46,10 @@ Changed:
 
 ## [0.0.1-alpha01] - 2025-05-23
 
-Initial (alpha) Release
+- Initial (alpha) Release
 
-[Unreleased]: https://github.com/fletchmckee/ktjni/compare/0.1.0...HEAD
+[Unreleased]: https://github.com/fletchmckee/ktjni/compare/0.1.1...HEAD
+[0.1.1]: https://github.com/fletchmckee/ktjni/releases/tag/0.1.1
 [0.1.0]: https://github.com/fletchmckee/ktjni/releases/tag/0.1.0
 [0.0.1-rc01]: https://github.com/fletchmckee/ktjni/releases/tag/0.0.1-rc01
 [0.0.1-beta03]: https://github.com/fletchmckee/ktjni/releases/tag/0.0.1-beta03

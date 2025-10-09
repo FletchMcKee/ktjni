@@ -30,7 +30,7 @@ pluginManagement {
 
 ```gradle
 plugins {
-  id("io.github.fletchmckee.ktjni") version "0.1.0"
+  id("io.github.fletchmckee.ktjni") version "0.1.1"
 }
 
 // If no `outputDir` is specified, it defaults to the following location:
@@ -136,7 +136,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_example_Crypto_sha256
 
 ```
 Copyright 2025 Colin McKee
- 
+
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
