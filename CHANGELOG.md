@@ -6,7 +6,7 @@
 
 Changed:
 
-- ASM 9.9 release
+- ASM 9.9 release ([#71](https://github.com/FletchMcKee/ktjni/pull/71))
 
 ## [0.1.0] - 2025-06-09
 
