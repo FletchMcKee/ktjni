@@ -1,6 +1,6 @@
 [versions]
 activityCompose = "1.12.1"
-agp = "8.13.1"
+agp = "8.13.2"
 asm = "9.9"
 compileSdk = "36"
 composeBom = "2025.12.00"
