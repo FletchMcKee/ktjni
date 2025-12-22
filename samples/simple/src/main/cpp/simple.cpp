@@ -30,6 +30,25 @@ Java_io_github_fletchmckee_ktjni_samples_simple_NativeLib_longFromJni__J(
 }
 
 extern "C"
+JNIEXPORT jobjectArray JNICALL Java_io_github_fletchmckee_ktjni_samples_simple_NativeLib_nestedByteArray
+        (JNIEnv *env, jobject) {
+    jclass byteArrayClass = env->FindClass("[B");
+    jobjectArray outer = env->NewObjectArray(2, byteArrayClass, nullptr);
+
+    jbyte inner1[] = {1, 2, 3};
+    jbyteArray arr1 = env->NewByteArray(3);
+    env->SetByteArrayRegion(arr1, 0, 3, inner1);
+    env->SetObjectArrayElement(outer, 0, arr1);
+
+    jbyte inner2[] = {4, 5, 6};
+    jbyteArray arr2 = env->NewByteArray(3);
+    env->SetByteArrayRegion(arr2, 0, 3, inner2);
+    env->SetObjectArrayElement(outer, 1, arr2);
+
+    return outer;
+}
+
+extern "C"
 JNIEXPORT void JNICALL
 Java_io_github_fletchmckee_ktjni_samples_simple_Parent_00024Child_childJniMethod(
         JNIEnv *,

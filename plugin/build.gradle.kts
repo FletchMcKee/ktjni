@@ -15,16 +15,16 @@ kotlin {
   explicitApi()
 
   compilerOptions {
-    jvmTarget.set(JvmTarget.JVM_17)
+    jvmTarget.set(JvmTarget.JVM_11)
   }
 }
 
 java {
-  sourceCompatibility = JavaVersion.VERSION_17
-  targetCompatibility = JavaVersion.VERSION_17
+  sourceCompatibility = JavaVersion.VERSION_11
+  targetCompatibility = JavaVersion.VERSION_11
 }
 
-tasks.withType<Test> {
+tasks.withType<Test>().configureEach {
   useJUnitPlatform()
 }
 
@@ -53,8 +53,8 @@ dependencies {
   testRuntimeOnly(libs.junit.platform.launcher)
 }
 
-// `pluginUnderTestMetadata` automatically builds a plugin classpath from implementation dependencies, but it doesn’t include transitive
-// runtime-only dependencies like Kotlin's gradle-plugin, so we set it here.
+// `pluginUnderTestMetadata` automatically builds a plugin classpath from implementation dependencies, but it doesn’t include
+// our compileOnly dependencies, so we set them here.
 tasks.named<PluginUnderTestMetadata>("pluginUnderTestMetadata") {
   pluginClasspath.from(testKitRuntimeOnly)
 }

@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+Fixed:
+
+- Fixed issue ([#93](https://github.com/FletchMcKee/ktjni/issues/93)) as nested arrays now write the correct `jobjectArray` rather than the primitive type.
+  - Thanks @GalaxyCat42 for spotting this bug!
+
 ## [0.1.1] - 2025-10-09
 
 Changed:
