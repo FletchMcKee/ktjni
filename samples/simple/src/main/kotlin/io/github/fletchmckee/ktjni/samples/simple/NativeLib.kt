@@ -6,6 +6,7 @@ class NativeLib {
   external fun stringFromJni(): String
   external fun longFromJni(): Long
   external fun longFromJni(value: Long): Long
+  external fun nestedByteArray(): Array<ByteArray>
 
   companion object {
     // Various types of constants to test JNI static defines

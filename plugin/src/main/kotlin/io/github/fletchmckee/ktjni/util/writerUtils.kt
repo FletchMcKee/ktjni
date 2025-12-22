@@ -81,19 +81,23 @@ internal val Type.jniType: String get() = when (this.sort) {
   Type.FLOAT -> "jfloat"
   Type.DOUBLE -> "jdouble"
   Type.ARRAY -> {
-    when (elementType.sort) {
-      Type.BOOLEAN -> "jbooleanArray"
-      Type.BYTE -> "jbyteArray"
-      Type.CHAR -> "jcharArray"
-      Type.SHORT -> "jshortArray"
-      Type.INT -> "jintArray"
-      Type.LONG -> "jlongArray"
-      Type.FLOAT -> "jfloatArray"
-      Type.DOUBLE -> "jdoubleArray"
-      Type.ARRAY,
-      Type.OBJECT,
-      -> "jobjectArray"
-      else -> throw IllegalArgumentException("Unknown array component type: $elementType")
+    when {
+      // ASM uses dimensions for array depth, only 1D primitive arrays get specialized types.
+      dimensions > 1 -> "jobjectArray"
+      else -> when (elementType.sort) {
+        Type.BOOLEAN -> "jbooleanArray"
+        Type.BYTE -> "jbyteArray"
+        Type.CHAR -> "jcharArray"
+        Type.SHORT -> "jshortArray"
+        Type.INT -> "jintArray"
+        Type.LONG -> "jlongArray"
+        Type.FLOAT -> "jfloatArray"
+        Type.DOUBLE -> "jdoubleArray"
+        Type.ARRAY,
+        Type.OBJECT,
+        -> "jobjectArray"
+        else -> throw IllegalArgumentException("Unknown array component type: $elementType")
+      }
     }
   }
   Type.OBJECT -> {
