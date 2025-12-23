@@ -9,14 +9,16 @@ import io.github.fletchmckee.ktjni.internal.configureKotlinJvm
 import io.github.fletchmckee.ktjni.internal.configureKotlinMultiplatform
 import io.github.fletchmckee.ktjni.tasks.KtjniTask
 import io.github.fletchmckee.ktjni.util.GROUP
+import io.github.fletchmckee.ktjni.util.taskSuffix
 import io.github.fletchmckee.ktjni.util.titleCase
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.plugins.JavaBasePlugin
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.SourceSetContainer
-import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.scala.ScalaCompile
 
@@ -83,11 +85,14 @@ public class KtjniPlugin : Plugin<Project> {
   ) {
     plugins.withType(JavaBasePlugin::class.java) {
       val javaExtension = extensions.getByName("sourceSets") as SourceSetContainer
-      javaExtension.all {
-        val compileTaskProvider = tasks.named(compileJavaTaskName, JavaCompile::class.java)
-        registerJavaHeaderTask(
+      javaExtension.configureEach {
+        val compileSourceDir = tasks.named(compileJavaTaskName, JavaCompile::class.java)
+          .flatMap { it.destinationDirectory }
+
+        registerKtjniTask(
+          language = "java",
           sourceSetName = name,
-          compileTaskProvider = compileTaskProvider,
+          compileSourceDir = compileSourceDir,
           headerOutputDir = headerOutputDir,
           aggregate = aggregate,
         )
@@ -102,66 +107,44 @@ public class KtjniPlugin : Plugin<Project> {
     plugins.withId(PluginId.Scala.id) {
       // The scala plugin also applies the java plugin.
       val sourceSets = extensions.getByName("sourceSets") as SourceSetContainer
-      sourceSets.all {
-        val compileTaskProvider = tasks.named(getCompileTaskName("scala"), ScalaCompile::class.java)
-        registerScalaHeaderTask(
+      sourceSets.configureEach {
+        val compileSourceDir = tasks.named(getCompileTaskName("scala"), ScalaCompile::class.java)
+          .flatMap { it.destinationDirectory }
+
+        registerKtjniTask(
+          language = "scala",
           sourceSetName = name,
-          compileTaskProvider = compileTaskProvider,
+          compileSourceDir = compileSourceDir,
           headerOutputDir = headerOutputDir,
           aggregate = aggregate,
         )
       }
     }
   }
+}
 
-  private fun Project.registerJavaHeaderTask(
-    sourceSetName: String,
-    compileTaskProvider: TaskProvider<JavaCompile>,
-    headerOutputDir: DirectoryProperty,
-    aggregate: ConfigurableFileCollection,
-  ) {
-    val taskName = "generateJava${sourceSetName.titleCase}JniHeaders"
+internal fun Project.registerKtjniTask(
+  language: String,
+  sourceSetName: String,
+  compileSourceDir: Provider<Directory>,
+  headerOutputDir: DirectoryProperty,
+  aggregate: ConfigurableFileCollection,
+  target: String = "", // For Kotlin Multiplatform
+) {
+  val taskSuffix = sourceSetName.taskSuffix(target)
+  val taskName = "generate${language.titleCase}${taskSuffix.titleCase}JniHeaders"
 
-    val generateJniHeadersTask = tasks.register(taskName, KtjniTask::class.java) {
-      sourceDir.set(
-        compileTaskProvider.flatMap { it.destinationDirectory },
-      )
+  val generateJniHeadersTask = tasks.register(taskName, KtjniTask::class.java) {
+    sourceDir.set(compileSourceDir)
+    outputDir.set(headerOutputDir.map { it.dir("$language/$taskSuffix") })
 
-      outputDir.set(headerOutputDir.map { it.dir("java/$sourceSetName") })
+    group = GROUP
+    description = "Generates $language JNI headers from class files for $sourceSetName compilation."
 
-      group = GROUP
-      description = "Generates Java JNI headers from class files for $sourceSetName compilation."
-
-      doFirst {
-        logger.info("Ktjni - running $taskName")
-      }
+    doFirst {
+      logger.info("Ktjni - running $taskName")
     }
-
-    aggregate.from(generateJniHeadersTask.flatMap { it.outputDir })
   }
 
-  private fun Project.registerScalaHeaderTask(
-    sourceSetName: String,
-    compileTaskProvider: TaskProvider<ScalaCompile>,
-    headerOutputDir: DirectoryProperty,
-    aggregate: ConfigurableFileCollection,
-  ) {
-    val taskName = "generateScala${sourceSetName.titleCase}JniHeaders"
-    val generateJniHeadersTask = tasks.register(taskName, KtjniTask::class.java) {
-      sourceDir.set(
-        compileTaskProvider.flatMap { it.destinationDirectory },
-      )
-
-      outputDir.set(headerOutputDir.map { it.dir("scala/$sourceSetName") })
-
-      group = GROUP
-      description = "Generates Scala JNI headers from class files for $sourceSetName compilation."
-
-      doFirst {
-        logger.info("Ktjni - running $taskName")
-      }
-    }
-
-    aggregate.from(generateJniHeadersTask.flatMap { it.outputDir })
-  }
+  aggregate.from(generateJniHeadersTask.flatMap { it.outputDir })
 }

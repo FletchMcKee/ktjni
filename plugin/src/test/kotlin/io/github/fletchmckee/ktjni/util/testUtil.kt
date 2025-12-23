@@ -92,7 +92,7 @@ internal fun File.writeKmpBuildFile(kotlinJdkVersion: KotlinJdkVersion) = writeT
 
   kotlin {
     jvm {
-      compilations.all {
+      compilations.configureEach {
         compilerOptions.configure {
           jvmTarget.set(JvmTarget.JVM_${kotlinJdkVersion.jdk})
         }
@@ -126,7 +126,7 @@ internal fun File.writeKotlinJvmBuildFile(kotlinJdkVersion: KotlinJdkVersion) = 
     targetCompatibility = JavaVersion.VERSION_${kotlinJdkVersion.jdk}
   }
 
-  tasks.withType<KotlinCompile> {
+  tasks.withType<KotlinCompile>().configureEach {
     compilerOptions {
       jvmTarget.set(JvmTarget.valueOf("JVM_${kotlinJdkVersion.jdk}"))
     }
@@ -185,6 +185,13 @@ internal fun assertKotlinAndroidTestsNoSource(result: BuildResult) {
   assertThat(result.task(":generateKotlinDebugAndroidTestJniHeaders")?.outcome).isEqualTo(TaskOutcome.NO_SOURCE)
   assertThat(result.task(":generateKotlinDebugUnitTestJniHeaders")?.outcome).isEqualTo(TaskOutcome.NO_SOURCE)
   assertThat(result.task(":generateKotlinReleaseUnitTestJniHeaders")?.outcome).isEqualTo(TaskOutcome.NO_SOURCE)
+}
+
+internal fun assertKmpAndroidTestsNoSource(result: BuildResult) {
+  // There is no ReleaseAndroidTest variant.
+  assertThat(result.task(":generateKotlinAndroidDebugAndroidTestJniHeaders")?.outcome).isEqualTo(TaskOutcome.NO_SOURCE)
+  assertThat(result.task(":generateKotlinAndroidDebugUnitTestJniHeaders")?.outcome).isEqualTo(TaskOutcome.NO_SOURCE)
+  assertThat(result.task(":generateKotlinAndroidReleaseUnitTestJniHeaders")?.outcome).isEqualTo(TaskOutcome.NO_SOURCE)
 }
 
 internal fun assertJavaAndroidTestsNoSource(result: BuildResult) {
