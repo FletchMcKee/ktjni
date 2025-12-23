@@ -6,6 +6,7 @@ import com.google.common.truth.Truth.assertThat
 import io.github.fletchmckee.ktjni.util.AndroidVersion
 import io.github.fletchmckee.ktjni.util.assertConfigurationCacheReused
 import io.github.fletchmckee.ktjni.util.assertJavaAndroidTestsNoSource
+import io.github.fletchmckee.ktjni.util.assertKmpAndroidTestsNoSource
 import io.github.fletchmckee.ktjni.util.assertKotlinAndroidTestsNoSource
 import io.github.fletchmckee.ktjni.util.assertNotIn
 import io.github.fletchmckee.ktjni.util.withAndroidConfiguration
@@ -14,7 +15,9 @@ import io.github.fletchmckee.ktjni.util.writeCommonSettingsFile
 import io.github.fletchmckee.ktjni.util.writeJavaAndroidLibraryBuildFile
 import io.github.fletchmckee.ktjni.util.writeJavaBuildFile
 import io.github.fletchmckee.ktjni.util.writeJavaExampleFile
+import io.github.fletchmckee.ktjni.util.writeKmpAndroidLibraryBuildFile
 import io.github.fletchmckee.ktjni.util.writeKmpBuildFile
+import io.github.fletchmckee.ktjni.util.writeKmpLegacyAndroidLibraryBuildFile
 import io.github.fletchmckee.ktjni.util.writeKotlinAndroidLibraryBuildFile
 import io.github.fletchmckee.ktjni.util.writeKotlinExampleFile
 import io.github.fletchmckee.ktjni.util.writeKotlinJvmBuildFile
@@ -66,6 +69,82 @@ class KtjniPluginTest {
 
     secondRun.assertConfigurationCacheReused()
     assertHeaders(projectRoot, "build/generated/ktjni/kotlin/jvmMain")
+  }
+
+  @ParameterizedTest
+  @EnumSource(AndroidVersion::class)
+  fun `plugin generates headers for Kotlin Multiplatform Android legacy AGP`(kotlinJdkVersion: AndroidVersion) {
+    srcDir = File(projectRoot, "src/main/kotlin/com/example").apply { mkdirs() }
+    testFile = File(srcDir, "Example.kt")
+    testFile.writeKotlinExampleFile()
+    buildFile.writeKmpLegacyAndroidLibraryBuildFile(kotlinJdkVersion)
+
+    val firstRun = createAndroidTestRunner(projectRoot).build()
+
+    assertThat(firstRun.task(":generateJniHeaders")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+    assertThat(firstRun.task(":generateKotlinAndroidDebugJniHeaders")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+    assertThat(firstRun.task(":generateKotlinAndroidReleaseJniHeaders")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+    assertKmpAndroidTestsNoSource(firstRun)
+
+    val secondRun = createAndroidTestRunner(projectRoot).build()
+    // Verify tasks are restored from cache.
+    assertThat(secondRun.task(":generateJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
+    assertThat(secondRun.task(":generateKotlinAndroidDebugJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
+    assertThat(secondRun.task(":generateKotlinAndroidReleaseJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
+    assertKmpAndroidTestsNoSource(secondRun)
+
+    secondRun.assertConfigurationCacheReused()
+    assertHeaders(projectRoot, "build/generated/ktjni/kotlin/androidDebug")
+    assertHeaders(projectRoot, "build/generated/ktjni/kotlin/androidRelease")
+  }
+
+  @ParameterizedTest
+  @EnumSource(AndroidVersion::class)
+  fun `plugin generates commonMain headers for Kotlin Multiplatform Android legacy AGP`(kotlinJdkVersion: AndroidVersion) {
+    srcDir = File(projectRoot, "src/commonMain/kotlin/com/example").apply { mkdirs() }
+    testFile = File(srcDir, "Example.kt")
+    testFile.writeKotlinExampleFile()
+    buildFile.writeKmpLegacyAndroidLibraryBuildFile(kotlinJdkVersion)
+
+    val firstRun = createAndroidTestRunner(projectRoot).build()
+
+    assertThat(firstRun.task(":generateJniHeaders")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+    assertThat(firstRun.task(":generateKotlinAndroidDebugJniHeaders")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+    assertThat(firstRun.task(":generateKotlinAndroidReleaseJniHeaders")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+    assertKmpAndroidTestsNoSource(firstRun)
+
+    val secondRun = createAndroidTestRunner(projectRoot).build()
+    // Verify tasks are restored from cache.
+    assertThat(secondRun.task(":generateJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
+    assertThat(secondRun.task(":generateKotlinAndroidDebugJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
+    assertThat(secondRun.task(":generateKotlinAndroidReleaseJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
+    assertKmpAndroidTestsNoSource(secondRun)
+
+    secondRun.assertConfigurationCacheReused()
+    assertHeaders(projectRoot, "build/generated/ktjni/kotlin/androidDebug")
+    assertHeaders(projectRoot, "build/generated/ktjni/kotlin/androidRelease")
+  }
+
+  @ParameterizedTest
+  @EnumSource(AndroidVersion::class)
+  fun `plugin generates headers for KMP and Android KMP plugin`(kotlinAndroid: AndroidVersion) {
+    srcDir = File(projectRoot, "src/commonMain/kotlin/com/example").apply { mkdirs() }
+    testFile = File(srcDir, "Example.kt")
+    testFile.writeKotlinExampleFile()
+    buildFile.writeKmpAndroidLibraryBuildFile(kotlinAndroid)
+
+    val firstRun = createAndroidTestRunner(projectRoot).build()
+
+    assertThat(firstRun.task(":generateJniHeaders")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+    assertThat(firstRun.task(":generateKotlinAndroidMainJniHeaders")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+
+    val secondRun = createAndroidTestRunner(projectRoot).build()
+    // Verify tasks are restored from cache.
+    assertThat(secondRun.task(":generateJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
+    assertThat(secondRun.task(":generateKotlinAndroidMainJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
+
+    secondRun.assertConfigurationCacheReused()
+    assertHeaders(projectRoot, "build/generated/ktjni/kotlin/androidMain")
   }
 
   @ParameterizedTest

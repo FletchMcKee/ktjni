@@ -42,7 +42,7 @@ android {
     targetCompatibility = JavaVersion.VERSION_11
   }
 
-  tasks.withType<KotlinCompile> {
+  tasks.withType<KotlinCompile>().configureEach {
     compilerOptions {
       jvmTarget.set(JvmTarget.JVM_11)
     }

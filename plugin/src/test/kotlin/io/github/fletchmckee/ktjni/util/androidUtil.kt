@@ -40,6 +40,67 @@ internal fun GradleRunner.withAndroidConfiguration(projectRoot: File): GradleRun
     .withTestKitDir(File("build/gradle-test-kit").absoluteFile)
 }
 
+internal fun File.writeKmpLegacyAndroidLibraryBuildFile(kotlinAndroid: AndroidVersion) = writeText(
+  """
+  import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+  import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+  plugins {
+    id("com.android.library") version "8.13.2"
+    kotlin("multiplatform") version "${kotlinAndroid.kotlin}"
+    id("io.github.fletchmckee.ktjni")
+  }
+
+  android {
+    compileSdk = 36
+    defaultConfig {
+      minSdk = 23
+      namespace = "com.example"
+    }
+
+    compileOptions {
+      sourceCompatibility = JavaVersion.VERSION_${kotlinAndroid.jdk}
+      targetCompatibility = JavaVersion.VERSION_${kotlinAndroid.jdk}
+    }
+  }
+
+  tasks.withType<KotlinCompile>().configureEach {
+    compilerOptions {
+      jvmTarget.set(JvmTarget.valueOf("JVM_${kotlinAndroid.jdk}"))
+    }
+  }
+
+  kotlin {
+    androidTarget()
+  }
+  """.trimIndent(),
+)
+
+internal fun File.writeKmpAndroidLibraryBuildFile(kotlinAndroid: AndroidVersion) = writeText(
+  """
+  import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+  import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+  plugins {
+    id("com.android.kotlin.multiplatform.library") version "${kotlinAndroid.agp}"
+    kotlin("multiplatform") version "${kotlinAndroid.kotlin}"
+    id("io.github.fletchmckee.ktjni")
+  }
+
+  kotlin {
+    androidLibrary {
+      compileSdk { version = release(36) }
+      minSdk = 23
+      namespace = "com.example"
+
+      compilerOptions {
+        jvmTarget.set(JvmTarget.valueOf("JVM_${kotlinAndroid.jdk}"))
+      }
+    }
+  }
+  """.trimIndent(),
+)
+
 internal fun File.writeKotlinAndroidLibraryBuildFile(kotlinAndroid: AndroidVersion) = writeText(
   """
   import org.jetbrains.kotlin.gradle.dsl.JvmTarget
