@@ -83,7 +83,7 @@ public class KtjniPlugin : Plugin<Project> {
     headerOutputDir: DirectoryProperty,
     aggregate: ConfigurableFileCollection,
   ) {
-    plugins.withType(JavaBasePlugin::class.java) {
+    plugins.withType(JavaBasePlugin::class.java).configureEach {
       val javaExtension = extensions.getByName("sourceSets") as SourceSetContainer
       javaExtension.configureEach {
         val compileSourceDir = tasks.named(compileJavaTaskName, JavaCompile::class.java)

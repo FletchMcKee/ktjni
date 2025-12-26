@@ -1,5 +1,7 @@
 // Copyright 2025, Colin McKee
 // SPDX-License-Identifier: Apache-2.0
+@file:Suppress("UnstableApiUsage")
+
 import com.vanniktech.maven.publish.GradlePlugin
 import com.vanniktech.maven.publish.JavadocJar
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -24,11 +26,20 @@ java {
   targetCompatibility = JavaVersion.VERSION_11
 }
 
+tasks.withType<ValidatePlugins>().configureEach {
+  enableStricterValidation = true
+}
+
 tasks.withType<Test>().configureEach {
   useJUnitPlatform()
 }
 
-val testKitRuntimeOnly by configurations.registering
+val testKitRuntimeOnly = configurations.dependencyScope("testKitRuntimeOnly")
+
+val testKitRuntimeClasspath =
+  configurations.resolvable("testKitRuntimeClasspath") {
+    extendsFrom(testKitRuntimeOnly.get())
+  }
 
 dependencies {
   // These need to be bundled with the plugin.
@@ -56,7 +67,7 @@ dependencies {
 // `pluginUnderTestMetadata` automatically builds a plugin classpath from implementation dependencies, but it doesn’t include
 // our compileOnly dependencies, so we set them here.
 tasks.named<PluginUnderTestMetadata>("pluginUnderTestMetadata") {
-  pluginClasspath.from(testKitRuntimeOnly)
+  pluginClasspath.from(testKitRuntimeClasspath)
 }
 
 gradlePlugin {
