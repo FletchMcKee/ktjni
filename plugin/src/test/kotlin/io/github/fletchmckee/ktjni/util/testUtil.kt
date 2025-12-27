@@ -15,6 +15,7 @@ internal fun GradleRunner.withCommonConfiguration(projectRoot: File): GradleRunn
   File(projectRoot, "gradle.properties").writeText(
     """
       org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g
+      org.gradle.caching=false
     """.trimIndent(),
   )
   return withProjectDir(projectRoot)
@@ -36,10 +37,6 @@ internal fun File.writeCommonSettingsFile(localCacheDir: File) = writeText(
   buildCache {
     local {
       directory = file("${localCacheDir.toURI()}")
-    }
-
-    remote(org.gradle.caching.http.HttpBuildCache::class) {
-      isEnabled = false
     }
   }
 
