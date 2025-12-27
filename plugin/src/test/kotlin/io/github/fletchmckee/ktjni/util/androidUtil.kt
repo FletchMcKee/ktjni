@@ -159,9 +159,9 @@ internal fun File.writeJavaAndroidLibraryBuildFile(javaAndroid: AndroidVersion) 
 
 @Suppress("unused") // Invoked from ParameterizedTest
 enum class AndroidVersion(val agp: String, val kotlin: String, val jdk: Int) {
-  K1_8_J17(agp = "8.1.4", kotlin = "1.9.20", jdk = 17),
+  K1_8_J11(agp = "8.1.4", kotlin = "1.9.20", jdk = 11),
   K1_9_J17(agp = "8.5.2", kotlin = "1.9.23", jdk = 17),
   K2_0_J21(agp = "8.7.3", kotlin = "2.0.20", jdk = 21),
-  K2_2_J21(agp = "8.9.0", kotlin = "2.2.0", jdk = 21),
+  K2_2_J22(agp = "8.9.0", kotlin = "2.2.0", jdk = 22),
   K2_3_J25(agp = "8.13.2", kotlin = "2.3.0", jdk = 25),
 }
