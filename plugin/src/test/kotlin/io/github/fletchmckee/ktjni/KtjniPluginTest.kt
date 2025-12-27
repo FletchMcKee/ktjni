@@ -220,6 +220,9 @@ class KtjniPluginTest {
     assertThat(firstRun.task(":generateJniHeaders")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
     assertThat(firstRun.task(":generateKotlinDebugJniHeaders")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
     assertThat(firstRun.task(":generateKotlinReleaseJniHeaders")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+    // The Java tasks are registered (com.android.library plugin is applied), but they should be NO_SOURCE.
+    assertThat(firstRun.task(":generateJavaDebugJniHeaders")?.outcome).isEqualTo(TaskOutcome.NO_SOURCE)
+    assertThat(firstRun.task(":generateJavaReleaseJniHeaders")?.outcome).isEqualTo(TaskOutcome.NO_SOURCE)
     assertKotlinAndroidTestsNoSource(firstRun)
 
     projectRoot.deleteBuildDirectory()
@@ -248,6 +251,9 @@ class KtjniPluginTest {
     assertThat(firstRun.task(":generateJniHeaders")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
     assertThat(firstRun.task(":generateJavaDebugJniHeaders")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
     assertThat(firstRun.task(":generateJavaReleaseJniHeaders")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+    // No Kotlin plugin is applied, so these should not exist.
+    assertThat(firstRun.task(":generateKotlinDebugJniHeaders")?.outcome).isNull()
+    assertThat(firstRun.task(":generateKotlinReleaseJniHeaders")?.outcome).isNull()
     // Unit test and Android test variants should exist but be NO_SOURCE since we only have main sources
     assertJavaAndroidTestsNoSource(firstRun)
 

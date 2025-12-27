@@ -113,7 +113,7 @@ internal fun File.writeKotlinAndroidLibraryBuildFile(kotlinAndroid: AndroidVersi
   }
 
   android {
-    compileSdk = 34
+    compileSdk = 36
     defaultConfig {
       minSdk = 21
       namespace = "com.example"
@@ -142,7 +142,7 @@ internal fun File.writeJavaAndroidLibraryBuildFile(javaAndroid: AndroidVersion) 
   }
 
   android {
-    compileSdk = 34
+    compileSdk = 36
     defaultConfig {
       minSdk = 21
       namespace = "com.example"

@@ -37,6 +37,10 @@ internal fun File.writeCommonSettingsFile(localCacheDir: File) = writeText(
     local {
       directory = file("${localCacheDir.toURI()}")
     }
+
+    remote(org.gradle.caching.http.HttpBuildCache::class) {
+      isEnabled = false
+    }
   }
 
   """.trimIndent(),
