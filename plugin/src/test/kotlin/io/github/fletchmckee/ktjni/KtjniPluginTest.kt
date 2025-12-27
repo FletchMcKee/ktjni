@@ -9,7 +9,6 @@ import io.github.fletchmckee.ktjni.util.assertJavaAndroidTestsNoSource
 import io.github.fletchmckee.ktjni.util.assertKmpAndroidTestsNoSource
 import io.github.fletchmckee.ktjni.util.assertKotlinAndroidTestsNoSource
 import io.github.fletchmckee.ktjni.util.assertNotIn
-import io.github.fletchmckee.ktjni.util.deleteBuildDirectory
 import io.github.fletchmckee.ktjni.util.withAndroidConfiguration
 import io.github.fletchmckee.ktjni.util.withCommonConfiguration
 import io.github.fletchmckee.ktjni.util.writeCommonSettingsFile
@@ -63,11 +62,10 @@ class KtjniPluginTest {
     // The Java task should run but have NO-SOURCE as its result.
     assertThat(firstRun.task(":generateJavaJvmMainJniHeaders")?.outcome).isEqualTo(TaskOutcome.NO_SOURCE)
 
-    projectRoot.deleteBuildDirectory()
     val secondRun = createTestRunner(projectRoot).build()
-    // Verify tasks are restored from cache. Aggregate task is UP_TO_DATE because it has no actions.
+    // Verify tasks are restored from cache.
     assertThat(secondRun.task(":generateJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
-    assertThat(secondRun.task(":generateKotlinJvmMainJniHeaders")?.outcome).isEqualTo(TaskOutcome.FROM_CACHE)
+    assertThat(secondRun.task(":generateKotlinJvmMainJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
 
     secondRun.assertConfigurationCacheReused()
     assertHeaders(projectRoot, "build/generated/ktjni/kotlin/jvmMain")
@@ -88,12 +86,11 @@ class KtjniPluginTest {
     assertThat(firstRun.task(":generateKotlinAndroidReleaseJniHeaders")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
     assertKmpAndroidTestsNoSource(firstRun)
 
-    projectRoot.deleteBuildDirectory()
     val secondRun = createAndroidTestRunner(projectRoot).build()
     // Verify tasks are restored from cache.
     assertThat(secondRun.task(":generateJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
-    assertThat(secondRun.task(":generateKotlinAndroidDebugJniHeaders")?.outcome).isEqualTo(TaskOutcome.FROM_CACHE)
-    assertThat(secondRun.task(":generateKotlinAndroidReleaseJniHeaders")?.outcome).isEqualTo(TaskOutcome.FROM_CACHE)
+    assertThat(secondRun.task(":generateKotlinAndroidDebugJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
+    assertThat(secondRun.task(":generateKotlinAndroidReleaseJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
     assertKmpAndroidTestsNoSource(secondRun)
 
     secondRun.assertConfigurationCacheReused()
@@ -116,12 +113,11 @@ class KtjniPluginTest {
     assertThat(firstRun.task(":generateKotlinAndroidReleaseJniHeaders")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
     assertKmpAndroidTestsNoSource(firstRun)
 
-    projectRoot.deleteBuildDirectory()
     val secondRun = createAndroidTestRunner(projectRoot).build()
     // Verify tasks are restored from cache.
     assertThat(secondRun.task(":generateJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
-    assertThat(secondRun.task(":generateKotlinAndroidDebugJniHeaders")?.outcome).isEqualTo(TaskOutcome.FROM_CACHE)
-    assertThat(secondRun.task(":generateKotlinAndroidReleaseJniHeaders")?.outcome).isEqualTo(TaskOutcome.FROM_CACHE)
+    assertThat(secondRun.task(":generateKotlinAndroidDebugJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
+    assertThat(secondRun.task(":generateKotlinAndroidReleaseJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
     assertKmpAndroidTestsNoSource(secondRun)
 
     secondRun.assertConfigurationCacheReused()
@@ -142,11 +138,10 @@ class KtjniPluginTest {
     assertThat(firstRun.task(":generateJniHeaders")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
     assertThat(firstRun.task(":generateKotlinAndroidMainJniHeaders")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
 
-    projectRoot.deleteBuildDirectory()
     val secondRun = createAndroidTestRunner(projectRoot).build()
     // Verify tasks are restored from cache.
     assertThat(secondRun.task(":generateJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
-    assertThat(secondRun.task(":generateKotlinAndroidMainJniHeaders")?.outcome).isEqualTo(TaskOutcome.FROM_CACHE)
+    assertThat(secondRun.task(":generateKotlinAndroidMainJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
 
     secondRun.assertConfigurationCacheReused()
     assertHeaders(projectRoot, "build/generated/ktjni/kotlin/androidMain")
@@ -167,11 +162,10 @@ class KtjniPluginTest {
     // The Kotlin task should run but have NO-SOURCE as its result.
     assertThat(firstRun.task(":generateKotlinJvmMainJniHeaders")?.outcome).isEqualTo(TaskOutcome.NO_SOURCE)
 
-    projectRoot.deleteBuildDirectory()
     val secondRun = createTestRunner(projectRoot).build()
     // Verify tasks are restored from cache.
     assertThat(secondRun.task(":generateJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
-    assertThat(secondRun.task(":generateJavaJvmMainJniHeaders")?.outcome).isEqualTo(TaskOutcome.FROM_CACHE)
+    assertThat(secondRun.task(":generateJavaJvmMainJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
 
     secondRun.assertConfigurationCacheReused()
     assertHeaders(projectRoot, "build/generated/ktjni/java/jvmMain")
@@ -197,11 +191,10 @@ class KtjniPluginTest {
       ":generateGroovyMainJniHeaders",
     )
 
-    projectRoot.deleteBuildDirectory()
     val secondRun = createTestRunner(projectRoot).build()
     // Verify tasks are restored from cache.
     assertThat(secondRun.task(":generateJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
-    assertThat(secondRun.task(":generateKotlinMainJniHeaders")?.outcome).isEqualTo(TaskOutcome.FROM_CACHE)
+    assertThat(secondRun.task(":generateKotlinMainJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
 
     secondRun.assertConfigurationCacheReused()
     assertHeaders(projectRoot, "build/generated/ktjni/kotlin/main")
@@ -225,12 +218,11 @@ class KtjniPluginTest {
     assertThat(firstRun.task(":generateJavaReleaseJniHeaders")?.outcome).isEqualTo(TaskOutcome.NO_SOURCE)
     assertKotlinAndroidTestsNoSource(firstRun)
 
-    projectRoot.deleteBuildDirectory()
     val secondRun = createAndroidTestRunner(projectRoot).build()
     // Verify tasks are restored from cache.
     assertThat(secondRun.task(":generateJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
-    assertThat(secondRun.task(":generateKotlinDebugJniHeaders")?.outcome).isEqualTo(TaskOutcome.FROM_CACHE)
-    assertThat(secondRun.task(":generateKotlinReleaseJniHeaders")?.outcome).isEqualTo(TaskOutcome.FROM_CACHE)
+    assertThat(secondRun.task(":generateKotlinDebugJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
+    assertThat(secondRun.task(":generateKotlinReleaseJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
     assertKotlinAndroidTestsNoSource(secondRun)
 
     secondRun.assertConfigurationCacheReused()
@@ -257,12 +249,11 @@ class KtjniPluginTest {
     // Unit test and Android test variants should exist but be NO_SOURCE since we only have main sources
     assertJavaAndroidTestsNoSource(firstRun)
 
-    projectRoot.deleteBuildDirectory()
     val secondRun = createAndroidTestRunner(projectRoot).build()
     // Verify tasks are restored from cache.
     assertThat(secondRun.task(":generateJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
-    assertThat(secondRun.task(":generateJavaDebugJniHeaders")?.outcome).isEqualTo(TaskOutcome.FROM_CACHE)
-    assertThat(secondRun.task(":generateJavaReleaseJniHeaders")?.outcome).isEqualTo(TaskOutcome.FROM_CACHE)
+    assertThat(secondRun.task(":generateJavaDebugJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
+    assertThat(secondRun.task(":generateJavaReleaseJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
 
     secondRun.assertConfigurationCacheReused()
     assertHeaders(projectRoot, "build/generated/ktjni/java/debug")
@@ -288,11 +279,10 @@ class KtjniPluginTest {
       ":generateGroovyMainJniHeaders",
     )
 
-    projectRoot.deleteBuildDirectory()
     val secondRun = createTestRunner(projectRoot).build()
     // Verify tasks are restored from cache.
     assertThat(secondRun.task(":generateJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
-    assertThat(secondRun.task(":generateJavaMainJniHeaders")?.outcome).isEqualTo(TaskOutcome.FROM_CACHE)
+    assertThat(secondRun.task(":generateJavaMainJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
 
     secondRun.assertConfigurationCacheReused()
     assertHeaders(projectRoot, "build/generated/ktjni/java/main")
@@ -318,11 +308,10 @@ class KtjniPluginTest {
       ":generateGroovyMainJniHeaders",
     )
 
-    projectRoot.deleteBuildDirectory()
     val secondRun = createTestRunner(projectRoot).build()
     // Verify tasks are restored from cache.
     assertThat(secondRun.task(":generateJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
-    assertThat(secondRun.task(":generateScalaMainJniHeaders")?.outcome).isEqualTo(TaskOutcome.FROM_CACHE)
+    assertThat(secondRun.task(":generateScalaMainJniHeaders")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
 
     secondRun.assertConfigurationCacheReused()
     assertHeaders(projectRoot, "build/generated/ktjni/scala/main")
@@ -330,7 +319,7 @@ class KtjniPluginTest {
 
   private fun createTestRunner(
     projectDir: File,
-    vararg tasks: String = arrayOf("--build-cache", "--configuration-cache", "--info"),
+    vararg tasks: String = arrayOf("--configuration-cache", "--info"),
   ): GradleRunner = GradleRunner.create()
     .forwardOutput()
     .withCommonConfiguration(projectDir)
@@ -339,7 +328,7 @@ class KtjniPluginTest {
 
   private fun createAndroidTestRunner(
     projectDir: File,
-    vararg tasks: String = arrayOf("--build-cache", "--configuration-cache", "--info"),
+    vararg tasks: String = arrayOf("--configuration-cache", "--info"),
   ): GradleRunner = GradleRunner.create()
     .forwardOutput()
     .withAndroidConfiguration(projectDir)

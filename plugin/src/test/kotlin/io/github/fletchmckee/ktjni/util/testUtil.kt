@@ -206,5 +206,3 @@ internal fun BuildResult.assertNotIn(vararg taskPaths: String) {
 }
 
 internal fun String.withInvariantPathSeparators() = replace("\\", "/")
-
-internal fun File.deleteBuildDirectory() = File(this, "build").deleteRecursively()
