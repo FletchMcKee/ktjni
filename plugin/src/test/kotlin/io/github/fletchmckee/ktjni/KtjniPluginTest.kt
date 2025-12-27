@@ -213,6 +213,9 @@ class KtjniPluginTest {
     assertThat(firstRun.task(":generateJniHeaders")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
     assertThat(firstRun.task(":generateKotlinDebugJniHeaders")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
     assertThat(firstRun.task(":generateKotlinReleaseJniHeaders")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+    // The Java tasks are registered (com.android.library plugin is applied), but they should be NO_SOURCE.
+    assertThat(firstRun.task(":generateJavaDebugJniHeaders")?.outcome).isEqualTo(TaskOutcome.NO_SOURCE)
+    assertThat(firstRun.task(":generateJavaReleaseJniHeaders")?.outcome).isEqualTo(TaskOutcome.NO_SOURCE)
     assertKotlinAndroidTestsNoSource(firstRun)
 
     val secondRun = createAndroidTestRunner(projectRoot).build()
@@ -240,6 +243,9 @@ class KtjniPluginTest {
     assertThat(firstRun.task(":generateJniHeaders")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
     assertThat(firstRun.task(":generateJavaDebugJniHeaders")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
     assertThat(firstRun.task(":generateJavaReleaseJniHeaders")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+    // No Kotlin plugin is applied, so these should not exist.
+    assertThat(firstRun.task(":generateKotlinDebugJniHeaders")?.outcome).isNull()
+    assertThat(firstRun.task(":generateKotlinReleaseJniHeaders")?.outcome).isNull()
     // Unit test and Android test variants should exist but be NO_SOURCE since we only have main sources
     assertJavaAndroidTestsNoSource(firstRun)
 
@@ -371,19 +377,19 @@ class KtjniPluginTest {
 
 @Suppress("unused") // Invoked from ParameterizedTest
 enum class KotlinJdkVersion(val gradle: String, val kotlin: String, val jdk: Int) {
-  K1_8_J17("8.5", "1.9.20", 17),
-  K1_9_J17("8.9", "1.9.23", 17),
-  K2_0_J21("8.11", "2.0.20", 21),
-  K2_1_J21("8.12", "2.1.21", 21),
-  K2_2_J21("8.14", "2.2.0-RC", 21),
+  K1_8_J17(gradle = "8.5", kotlin = "1.9.20", jdk = 17),
+  K2_0_J21(gradle = "8.11", kotlin = "2.0.20", jdk = 21),
+  K2_1_J21(gradle = "8.12", kotlin = "2.1.21", jdk = 21),
+  K2_2_J21(gradle = "8.14", kotlin = "2.2.0", jdk = 21),
+  K2_3_J25(gradle = "9.2.0", kotlin = "2.3.0", jdk = 25),
 }
 
 @Suppress("unused") // Invoked from ParameterizedTest
-enum class JavaGradleVersion(val gradle: String, val jdk: Int) {
-  G7_6_J11("7.6", 11),
-  G8_0_J17("8.0", 17),
-  G8_5_J21("8.5", 21),
-  G8_10_J21("8.11", 21),
+enum class JavaGradleVersion(val jdk: Int) {
+  JDK_11(11),
+  JDK_17(17),
+  JDK_21(21),
+  JDK_25(25),
 }
 
 @Suppress("unused") // Invoked from ParameterizedTest

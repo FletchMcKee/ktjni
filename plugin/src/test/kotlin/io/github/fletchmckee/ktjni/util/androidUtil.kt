@@ -113,7 +113,7 @@ internal fun File.writeKotlinAndroidLibraryBuildFile(kotlinAndroid: AndroidVersi
   }
 
   android {
-    compileSdk = 34
+    compileSdk = 36
     defaultConfig {
       minSdk = 21
       namespace = "com.example"
@@ -142,7 +142,7 @@ internal fun File.writeJavaAndroidLibraryBuildFile(javaAndroid: AndroidVersion) 
   }
 
   android {
-    compileSdk = 34
+    compileSdk = 36
     defaultConfig {
       minSdk = 21
       namespace = "com.example"
@@ -158,10 +158,10 @@ internal fun File.writeJavaAndroidLibraryBuildFile(javaAndroid: AndroidVersion) 
 )
 
 @Suppress("unused") // Invoked from ParameterizedTest
-enum class AndroidVersion(val gradle: String, val agp: String, val kotlin: String, val jdk: Int) {
-  K1_8_J17("8.5", "8.1.4", "1.9.20", 17),
-  K1_9_J17("8.9", "8.5.2", "1.9.23", 17),
-  K2_0_J21("8.11", "8.7.3", "2.0.20", 21),
-  K2_1_J21("8.12", "8.8.0", "2.1.21", 21),
-  K2_2_J21("8.14", "8.9.0", "2.2.0-RC", 21),
+enum class AndroidVersion(val agp: String, val kotlin: String, val jdk: Int) {
+  K1_8_J11(agp = "8.1.4", kotlin = "1.9.20", jdk = 11),
+  K1_9_J17(agp = "8.5.2", kotlin = "1.9.23", jdk = 17),
+  K2_0_J21(agp = "8.7.3", kotlin = "2.0.20", jdk = 21),
+  K2_2_J22(agp = "8.9.0", kotlin = "2.2.0", jdk = 22),
+  K2_3_J25(agp = "8.13.2", kotlin = "2.3.0", jdk = 25),
 }
