@@ -88,7 +88,7 @@ tasks.named<PluginUnderTestMetadata>("pluginUnderTestMetadata") {
 
 gradlePlugin {
   plugins {
-    create("ktjni") {
+    register("ktjni") {
       id = "io.github.fletchmckee.ktjni"
       implementationClass = "io.github.fletchmckee.ktjni.KtjniPlugin"
     }
