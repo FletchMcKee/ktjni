@@ -30,7 +30,7 @@ pluginManagement {
 
 ```gradle
 plugins {
-  id("io.github.fletchmckee.ktjni") version "0.1.1"
+  id("io.github.fletchmckee.ktjni") version "0.1.2"
 }
 
 // If no `outputDir` is specified, it defaults to the following location:

@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-01-28
+
+Changed:
+
+- ASM 9.9.1 release ([#91](https://github.com/FletchMcKee/ktjni/pull/91))
+
 Fixed:
 
 - Fixed issue ([#93](https://github.com/FletchMcKee/ktjni/issues/93)) as nested arrays now write the correct `jobjectArray` rather than the primitive type.
@@ -53,7 +59,8 @@ Changed:
 
 - Initial (alpha) Release
 
-[Unreleased]: https://github.com/fletchmckee/ktjni/compare/0.1.1...HEAD
+[Unreleased]: https://github.com/fletchmckee/ktjni/compare/0.1.2...HEAD
+[0.1.2]: https://github.com/fletchmckee/ktjni/releases/tag/0.1.2
 [0.1.1]: https://github.com/fletchmckee/ktjni/releases/tag/0.1.1
 [0.1.0]: https://github.com/fletchmckee/ktjni/releases/tag/0.1.0
 [0.0.1-rc01]: https://github.com/fletchmckee/ktjni/releases/tag/0.0.1-rc01
