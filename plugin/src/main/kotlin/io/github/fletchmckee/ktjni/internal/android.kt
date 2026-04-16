@@ -45,7 +45,7 @@ private fun Project.findJavaCompilationTask(
   registerKtjniTask(
     language = "java",
     sourceSetName = variant.name,
-    compileSourceDir = compileSourceDir,
+    compileSourceDir = objects.fileCollection().from(compileSourceDir),
     headerOutputDir = headerOutputDir,
     aggregate = aggregate,
   )
