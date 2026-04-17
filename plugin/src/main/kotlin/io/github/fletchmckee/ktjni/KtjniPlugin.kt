@@ -4,7 +4,6 @@ package io.github.fletchmckee.ktjni
 
 import io.github.fletchmckee.ktjni.internal.PluginId
 import io.github.fletchmckee.ktjni.internal.configureAndroidVariants
-import io.github.fletchmckee.ktjni.internal.configureKotlinAndroid
 import io.github.fletchmckee.ktjni.internal.configureKotlinJvm
 import io.github.fletchmckee.ktjni.internal.configureKotlinMultiplatform
 import io.github.fletchmckee.ktjni.tasks.KtjniTask
@@ -65,10 +64,6 @@ public class KtjniPlugin : Plugin<Project> {
 
     plugins.withId(PluginId.KotlinJvm.id) {
       configureKotlinJvm(headerOutputDir, aggregate)
-    }
-
-    plugins.withId(PluginId.KotlinAndroid.id) {
-      configureKotlinAndroid(headerOutputDir, aggregate)
     }
   }
 
