@@ -12,6 +12,8 @@ import io.github.fletchmckee.ktjni.util.needsHeader
 import java.io.File
 import java.io.FileInputStream
 import java.io.PrintWriter
+import kotlin.system.measureTimeMillis
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.logging.Logging
 import org.gradle.workers.WorkAction
@@ -21,7 +23,7 @@ import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.MethodNode
 
 internal interface GenerateJniHeadersParams : WorkParameters {
-  val sourceDir: DirectoryProperty
+  val sourceDir: ConfigurableFileCollection
   val outputDir: DirectoryProperty
 }
 
@@ -33,26 +35,28 @@ internal abstract class GenerateJniHeaders : WorkAction<GenerateJniHeadersParams
   private val logger = Logging.getLogger(GenerateJniHeaders::class.java)
 
   override fun execute() {
-    val srcDir = parameters.sourceDir.asFile.get()
+    val sourceDir = parameters.sourceDir.files
     val outputDir = parameters.outputDir.asFile.get()
     // Removes stale files and also prevents creating empty directories for sourceSets that contain no external native methods.
     outputDir.deleteRecursively()
-    val start = System.currentTimeMillis()
-    logger.info("Ktjni - generating JNI headers for $srcDir")
-    srcDir.walkTopDown()
-      .filter { it.extension == "class" }
-      .mapNotNull { classFile ->
-        processClassFile(
-          classFile = classFile,
-          srcDir = srcDir,
-          outputDir = outputDir,
-        )
-      }
-      .count()
-      .also { count ->
-        val delta = System.currentTimeMillis() - start
-        logger.info("Ktjni - completed writing $count header file(s) in $delta ms")
-      }
+    logger.info("Ktjni - generating JNI headers for $sourceDir")
+    var count = 0
+    val delta = measureTimeMillis {
+      count = sourceDir.filter { it.exists() && it.isDirectory }
+        .sumOf { srcDir ->
+          logger.info("Ktjni - generating JNI headers for $srcDir")
+          srcDir.walkTopDown()
+            .filter { it.extension == "class" }
+            .mapNotNull { classFile ->
+              processClassFile(
+                classFile = classFile,
+                srcDir = srcDir,
+                outputDir = outputDir,
+              )
+            }.count()
+        }
+    }
+    logger.info("Ktjni - completed writing $count header file(s) in $delta ms for $outputDir")
   }
 
   private fun processClassFile(classFile: File, srcDir: File, outputDir: File): String? {
@@ -90,7 +94,7 @@ internal abstract class GenerateJniHeaders : WorkAction<GenerateJniHeadersParams
     outputDir: File,
     nativeMethods: List<MethodNode>,
     overloadedMethodMap: Map<String, Int>,
-  ): String? {
+  ): String {
     val className = classNode.name.replace('/', '.')
     val fileName = className.replace(Regex("[.$]"), "_") + ".h"
     logger.info("Ktjni - class {$className} contains native methods. Creating file $fileName")

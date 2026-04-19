@@ -3,7 +3,6 @@
 package io.github.fletchmckee.ktjni.internal
 
 internal enum class PluginId(internal val id: String) {
-  KotlinAndroid("org.jetbrains.kotlin.android"),
   KotlinJvm("org.jetbrains.kotlin.jvm"),
   KotlinMultiplatform("org.jetbrains.kotlin.multiplatform"),
 
@@ -11,4 +10,5 @@ internal enum class PluginId(internal val id: String) {
   AndroidLibrary("com.android.library"),
 
   Scala("scala"),
+  Java("java"),
 }

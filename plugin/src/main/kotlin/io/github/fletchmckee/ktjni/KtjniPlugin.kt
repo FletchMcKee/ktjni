@@ -4,7 +4,6 @@ package io.github.fletchmckee.ktjni
 
 import io.github.fletchmckee.ktjni.internal.PluginId
 import io.github.fletchmckee.ktjni.internal.configureAndroidVariants
-import io.github.fletchmckee.ktjni.internal.configureKotlinAndroid
 import io.github.fletchmckee.ktjni.internal.configureKotlinJvm
 import io.github.fletchmckee.ktjni.internal.configureKotlinMultiplatform
 import io.github.fletchmckee.ktjni.tasks.KtjniTask
@@ -14,15 +13,12 @@ import io.github.fletchmckee.ktjni.util.titleCase
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.plugins.JavaBasePlugin
-import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.scala.ScalaCompile
 
-@Suppress("unused") // Invoked reflectively
+@Suppress("Unused") // Invoked reflectively
 public class KtjniPlugin : Plugin<Project> {
   override fun apply(target: Project): Unit = with(target) {
     val extension = extensions.create("ktjni", KtjniExtension::class.java)
@@ -33,12 +29,12 @@ public class KtjniPlugin : Plugin<Project> {
       group = GROUP
       description = "Generates JNI headers for all JVM compile tasks"
 
-      // Using `inputs.files` instead of `dependsOn` allows for better up-to-date checking and avoids eager task resolution.
+      // Using `inputs.files` instead of `dependsOn` allows for better up-to-date checking.
       inputs.files(aggregate)
     }
 
-    // This outputDir is optional so we set a default convention.
-    val headerOutputDir = extension.outputDir.convention(project.layout.buildDirectory.dir("generated/ktjni"))
+    val defaultBuildDir = project.layout.buildDirectory.dir("generated/ktjni")
+    val headerOutputDir = extension.outputDir.convention(defaultBuildDir)
 
     configureAndroid(headerOutputDir, aggregate)
     configureKotlin(headerOutputDir, aggregate)
@@ -49,12 +45,11 @@ public class KtjniPlugin : Plugin<Project> {
   private fun Project.configureAndroid(
     headerOutputDir: DirectoryProperty,
     aggregate: ConfigurableFileCollection,
-  ) {
-    plugins.withId(PluginId.AndroidApplication.id) {
-      configureAndroidVariants(headerOutputDir, aggregate)
-    }
-
-    plugins.withId(PluginId.AndroidLibrary.id) {
+  ) = listOf(
+    PluginId.AndroidLibrary,
+    PluginId.AndroidApplication,
+  ).forEach {
+    pluginManager.withPlugin(it.id) {
       configureAndroidVariants(headerOutputDir, aggregate)
     }
   }
@@ -63,62 +58,51 @@ public class KtjniPlugin : Plugin<Project> {
     headerOutputDir: DirectoryProperty,
     aggregate: ConfigurableFileCollection,
   ) {
-    // Kotlin Multiplatform
     plugins.withId(PluginId.KotlinMultiplatform.id) {
       configureKotlinMultiplatform(headerOutputDir, aggregate)
     }
 
-    // Kotlin JVM
     plugins.withId(PluginId.KotlinJvm.id) {
       configureKotlinJvm(headerOutputDir, aggregate)
-    }
-
-    // Kotlin Android
-    plugins.withId(PluginId.KotlinAndroid.id) {
-      configureKotlinAndroid(headerOutputDir, aggregate)
     }
   }
 
   private fun Project.configureJava(
     headerOutputDir: DirectoryProperty,
     aggregate: ConfigurableFileCollection,
-  ) {
-    plugins.withType(JavaBasePlugin::class.java).configureEach {
-      val javaExtension = extensions.getByName("sourceSets") as SourceSetContainer
-      javaExtension.configureEach {
-        val compileSourceDir = tasks.named(compileJavaTaskName, JavaCompile::class.java)
-          .flatMap { it.destinationDirectory }
+  ) = pluginManager.withPlugin(PluginId.Java.id) {
+    val javaExtension = extensions.getByType(JavaPluginExtension::class.java)
+    javaExtension.sourceSets.configureEach {
+      val compileSourceDir = tasks.named(compileJavaTaskName, JavaCompile::class.java)
+        .flatMap { it.destinationDirectory }
 
-        registerKtjniTask(
-          language = "java",
-          sourceSetName = name,
-          compileSourceDir = compileSourceDir,
-          headerOutputDir = headerOutputDir,
-          aggregate = aggregate,
-        )
-      }
+      registerKtjniTask(
+        language = "java",
+        sourceSetName = name,
+        compileSourceDir = objects.fileCollection().from(compileSourceDir),
+        headerOutputDir = headerOutputDir,
+        aggregate = aggregate,
+      )
     }
   }
 
   private fun Project.configureScala(
     headerOutputDir: DirectoryProperty,
     aggregate: ConfigurableFileCollection,
-  ) {
-    plugins.withId(PluginId.Scala.id) {
-      // The scala plugin also applies the java plugin.
-      val sourceSets = extensions.getByName("sourceSets") as SourceSetContainer
-      sourceSets.configureEach {
-        val compileSourceDir = tasks.named(getCompileTaskName("scala"), ScalaCompile::class.java)
-          .flatMap { it.destinationDirectory }
+  ) = pluginManager.withPlugin(PluginId.Scala.id) {
+    // The scala plugin also applies the java plugin.
+    val javaExtension = extensions.getByType(JavaPluginExtension::class.java)
+    javaExtension.sourceSets.configureEach {
+      val compileSourceDir = tasks.named(getCompileTaskName("scala"), ScalaCompile::class.java)
+        .flatMap { it.destinationDirectory }
 
-        registerKtjniTask(
-          language = "scala",
-          sourceSetName = name,
-          compileSourceDir = compileSourceDir,
-          headerOutputDir = headerOutputDir,
-          aggregate = aggregate,
-        )
-      }
+      registerKtjniTask(
+        language = "scala",
+        sourceSetName = name,
+        compileSourceDir = objects.fileCollection().from(compileSourceDir),
+        headerOutputDir = headerOutputDir,
+        aggregate = aggregate,
+      )
     }
   }
 }
@@ -126,7 +110,7 @@ public class KtjniPlugin : Plugin<Project> {
 internal fun Project.registerKtjniTask(
   language: String,
   sourceSetName: String,
-  compileSourceDir: Provider<Directory>,
+  compileSourceDir: ConfigurableFileCollection,
   headerOutputDir: DirectoryProperty,
   aggregate: ConfigurableFileCollection,
   target: String = "", // For Kotlin Multiplatform
@@ -135,7 +119,7 @@ internal fun Project.registerKtjniTask(
   val taskName = "generate${language.titleCase}${taskSuffix.titleCase}JniHeaders"
 
   val generateJniHeadersTask = tasks.register(taskName, KtjniTask::class.java) {
-    sourceDir.set(compileSourceDir)
+    sourceDir.from(compileSourceDir)
     outputDir.set(headerOutputDir.map { it.dir("$language/$taskSuffix") })
 
     group = GROUP

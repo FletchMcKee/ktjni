@@ -3,10 +3,10 @@
 package io.github.fletchmckee.ktjni.tasks
 
 import javax.inject.Inject
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.tasks.CacheableTask
-import org.gradle.api.tasks.IgnoreEmptyDirectories
-import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
@@ -17,11 +17,10 @@ import org.gradle.api.tasks.TaskAction
 internal abstract class KtjniTask
 @Inject
 constructor() : KtjniWorkerTask() {
-  @get:InputDirectory
+  @get:InputFiles
   @get:SkipWhenEmpty
-  @get:IgnoreEmptyDirectories
   @get:PathSensitive(PathSensitivity.RELATIVE)
-  abstract val sourceDir: DirectoryProperty
+  abstract val sourceDir: ConfigurableFileCollection
 
   @get:OutputDirectory
   abstract val outputDir: DirectoryProperty
@@ -29,7 +28,7 @@ constructor() : KtjniWorkerTask() {
   @TaskAction
   fun generateJniHeaders() {
     workQueue().submit(GenerateJniHeaders::class.java) {
-      sourceDir.set(this@KtjniTask.sourceDir)
+      sourceDir.from(this@KtjniTask.sourceDir)
       outputDir.set(this@KtjniTask.outputDir)
     }
   }

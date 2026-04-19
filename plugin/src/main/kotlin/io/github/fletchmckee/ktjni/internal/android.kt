@@ -3,15 +3,15 @@
 package io.github.fletchmckee.ktjni.internal
 
 import com.android.build.api.variant.AndroidComponentsExtension
-import com.android.build.api.variant.ComponentIdentity
-import com.android.build.api.variant.HasAndroidTest
-import com.android.build.api.variant.HasUnitTest
+import com.android.build.api.variant.Component
 import io.github.fletchmckee.ktjni.registerKtjniTask
 import io.github.fletchmckee.ktjni.util.titleCase
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.tasks.compile.JavaCompile
+import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidExtension
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 internal fun Project.configureAndroidVariants(
   headerOutputDir: DirectoryProperty,
@@ -19,18 +19,19 @@ internal fun Project.configureAndroidVariants(
 ) {
   val androidExtension = extensions.getByType(AndroidComponentsExtension::class.java)
   androidExtension.onVariants { variant ->
-    findJavaCompilationTask(variant, headerOutputDir, aggregate)
-    (variant as? HasUnitTest)?.unitTest?.let {
-      findJavaCompilationTask(it, headerOutputDir, aggregate)
-    }
-    (variant as? HasAndroidTest)?.androidTest?.let {
-      findJavaCompilationTask(it, headerOutputDir, aggregate)
+    configureKotlinAndroid(variant, headerOutputDir, aggregate)
+    configureJavaAndroid(variant, headerOutputDir, aggregate)
+
+    @Suppress("UnstableApiUsage")
+    variant.nestedComponents.forEach { nested ->
+      configureKotlinAndroid(nested, headerOutputDir, aggregate)
+      configureJavaAndroid(nested, headerOutputDir, aggregate)
     }
   }
 }
 
-private fun Project.findJavaCompilationTask(
-  variant: ComponentIdentity,
+private fun Project.configureJavaAndroid(
+  variant: Component,
   headerOutputDir: DirectoryProperty,
   aggregate: ConfigurableFileCollection,
 ) {
@@ -45,8 +46,28 @@ private fun Project.findJavaCompilationTask(
   registerKtjniTask(
     language = "java",
     sourceSetName = variant.name,
-    compileSourceDir = compileSourceDir,
+    compileSourceDir = objects.fileCollection().from(compileSourceDir),
     headerOutputDir = headerOutputDir,
     aggregate = aggregate,
   )
+}
+
+private fun Project.configureKotlinAndroid(
+  variant: Component,
+  headerOutputDir: DirectoryProperty,
+  aggregate: ConfigurableFileCollection,
+) {
+  val kotlinAndroid = project.extensions.findByType(KotlinAndroidExtension::class.java) ?: return
+  kotlinAndroid.target.compilations.matching { it.name == variant.name }
+    .configureEach {
+      val compileSourceDir = compileTaskProvider.map { it as KotlinJvmCompile }
+        .map { it.destinationDirectory }
+      registerKtjniTask(
+        language = "kotlin",
+        sourceSetName = variant.name,
+        compileSourceDir = objects.fileCollection().from(compileSourceDir),
+        headerOutputDir = headerOutputDir,
+        aggregate = aggregate,
+      )
+    }
 }
