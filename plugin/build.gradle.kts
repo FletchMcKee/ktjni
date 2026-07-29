@@ -34,9 +34,13 @@ tasks.withType<Test>().configureEach {
   useJUnitPlatform()
 }
 
-// JUnit 6 requires a minimum jdk of 17. Overriding the test classpath attributes seems like the easiest
-// way to use JUnit 6 for testing while allowing the plugin to support jdk 11.
 configurations {
+  compileClasspath {
+    attributes {
+      attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 17)
+    }
+  }
+
   testCompileClasspath {
     attributes {
       attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 17)
