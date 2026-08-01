@@ -11,6 +11,7 @@ junit = "4.13.2"
 junitExt = "1.3.0"
 junitJupiter = "6.1.2"
 kotlin = "2.4.10"
+ktjni = "1.0.0-SNAPSHOT"
 ktlint = "1.6.0"
 lifecycleRuntimeKtx = "2.11.0"
 mavenPublish = "0.37.0"
@@ -45,18 +46,20 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 # Added so that renovate can detect ktlint version updates.
 ktlint-core = { module = "com.pinterest.ktlint:ktlint-core", version.ref = "ktlint" }
 
-# Build logic dependencies
-kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
-android-gradle-plugin = { module = "com.android.tools.build:gradle", version.ref = "agp" }
-spotless-gradle-plugin = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
-ktjni-build-plugin = { module = "io.github.fletchmckee.ktjni.build:gradle-plugin" }
-ktjni-gradle-plugin = { module = "io.github.fletchmckee.ktjni:plugin" }
+# build-logic dependencies
+kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+android-api-gradlePlugin = { module = "com.android.tools.build:gradle-api", version.ref = "agp" }
+spotless-gradlePlugin = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
 
 [plugins]
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 binary-compatibility-validator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version = "0.18.1" }
 android-library = { id = "com.android.library", version.ref = "agp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+ktjni = { id = "io.github.fletchmckee.ktjni", version.ref = "ktjni" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "mavenPublish" }
+
+# Custom plugins
+ktjni-root = { id = "io.github.fletchmckee.ktjni.root" }
+ktjni-spotless = { id = "io.github.fletchmckee.ktjni.spotless" }

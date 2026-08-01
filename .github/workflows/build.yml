@@ -39,6 +39,9 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: Publish plugin to local test repository
+        run: ./gradlew :plugin:publishAllPublicationsToLocalTestRepository
+
       - name: Generate JNI headers
         run: ./gradlew :samples:simple:generateJniHeaders
 

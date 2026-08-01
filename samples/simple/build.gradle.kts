@@ -6,7 +6,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
   alias(libs.plugins.android.library)
-  id("io.github.fletchmckee.ktjni")
+  alias(libs.plugins.ktjni)
+  alias(libs.plugins.ktjni.spotless)
 }
 
 android {

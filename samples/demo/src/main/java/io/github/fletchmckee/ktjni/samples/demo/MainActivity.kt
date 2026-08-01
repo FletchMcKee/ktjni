@@ -35,7 +35,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.unit.dp
 import io.github.fletchmckee.ktjni.samples.demo.ui.theme.KtjniTheme
 import io.github.fletchmckee.ktjni.samples.simple.gaussianBlur
@@ -67,11 +67,11 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun BlurDemo(modifier: Modifier = Modifier) {
-  val context = LocalContext.current
+  val resources = LocalResources.current
 
   // Decode original once and cache it
   val originalBitmap = remember {
-    BitmapFactory.decodeResource(context.resources, R.drawable.moon_and_stars)!!
+    BitmapFactory.decodeResource(resources, R.drawable.moon_and_stars)
   }
 
   var sliderSigma by remember { mutableFloatStateOf(0f) }
