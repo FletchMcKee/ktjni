@@ -1,7 +1,5 @@
 // Copyright 2025, Colin McKee
 // SPDX-License-Identifier: Apache-2.0
-@file:Suppress("UnstableApiUsage")
-
 import com.vanniktech.maven.publish.GradlePlugin
 import com.vanniktech.maven.publish.JavadocJar
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -9,6 +7,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
   `kotlin-dsl`
   `java-gradle-plugin`
+  alias(libs.plugins.ktjni.spotless)
   alias(libs.plugins.binary.compatibility.validator)
   alias(libs.plugins.maven.publish)
 }
@@ -30,8 +29,22 @@ tasks.withType<ValidatePlugins>().configureEach {
   enableStricterValidation = true
 }
 
+val localRepo: Provider<Directory> = layout.buildDirectory.dir("local-repo")
+
 tasks.withType<Test>().configureEach {
   useJUnitPlatform()
+
+  dependsOn("publishAllPublicationsToLocalRepoRepository")
+  inputs
+    .files(localRepo.map { it.asFileTree.matching { exclude("**/maven-metadata.xml*") } })
+    .withPathSensitivity(PathSensitivity.RELATIVE)
+    .withPropertyName("repo")
+
+  val repoPath: Provider<String> = localRepo.map { it.asFile.absolutePath }
+
+  doFirst {
+    systemProperties["repoPath"] = repoPath.get()
+  }
 }
 
 configurations {
@@ -54,40 +67,23 @@ configurations {
   }
 }
 
-val testKitRuntimeOnly = configurations.dependencyScope("testKitRuntimeOnly")
-
-val testKitRuntimeClasspath =
-  configurations.resolvable("testKitRuntimeClasspath") {
-    extendsFrom(testKitRuntimeOnly.get())
-  }
-
 dependencies {
-  // These need to be bundled with the plugin.
+  // TODO: Shadow these
   implementation(libs.asm)
   implementation(libs.asm.tree)
 
-  // Provided by Gradle runtime or the user's own environment.
-  compileOnly(libs.kotlin.gradle.plugin)
-  compileOnly(libs.android.gradle.plugin)
+  compileOnly(libs.kotlin.gradlePlugin)
+  compileOnly(libs.android.api.gradlePlugin)
   compileOnly(gradleApi())
   compileOnly(localGroovy())
 
-  // Test libraries
   testImplementation(libs.junit.jupiter)
   testImplementation(libs.junit.jupiter.params)
   testImplementation(libs.kotlin.test.junit5)
   testImplementation(libs.google.truth)
   testImplementation(gradleTestKit())
 
-  testKitRuntimeOnly(libs.kotlin.gradle.plugin)
-  testKitRuntimeOnly(libs.android.gradle.plugin)
   testRuntimeOnly(libs.junit.platform.launcher)
-}
-
-// `pluginUnderTestMetadata` builds a plugin classpath from implementation dependencies, but it doesn’t include
-// our compileOnly dependencies, so we set them here.
-tasks.named<PluginUnderTestMetadata>("pluginUnderTestMetadata") {
-  pluginClasspath.from(testKitRuntimeClasspath)
 }
 
 gradlePlugin {
@@ -99,20 +95,17 @@ gradlePlugin {
   }
 }
 
-// This module exists in two contexts:
-// 1. In the root project where it's built as a publishable artifact
-// 2. In the build-support includeBuild where it's used for internal development
-if (rootProject.name == "ktjni") {
-  mavenPublishing {
-    configure(
-      GradlePlugin(
-        javadocJar = JavadocJar.Javadoc(),
-        sourcesJar = true,
-      ),
-    )
+publishing {
+  repositories {
+    maven {
+      name = "localRepo"
+      url = uri(localRepo)
+    }
   }
-} else {
-  // Use a separate build directory when included in build-support to prevent build cache conflicts and configuration pollution between
-  // contexts.
-  layout.buildDirectory.set(File(rootProject.rootDir, "build/plugin"))
+}
+
+mavenPublishing {
+  configure(
+    GradlePlugin(javadocJar = JavadocJar.Javadoc()),
+  )
 }

@@ -1,16 +1,23 @@
 // Copyright 2025, Colin McKee
 // SPDX-License-Identifier: Apache-2.0
+rootProject.name = "ktjni"
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
+
 pluginManagement {
-  includeBuild("build-support/settings")
+  includeBuild("build-logic")
   repositories {
+    @Suppress("UnstableApiUsage")
+    maven {
+      name = "localRepo"
+      url = uri(layout.settingsDirectory.dir("plugin/build/local-repo"))
+    }
+
     google()
     mavenCentral()
     gradlePluginPortal()
   }
-}
-
-plugins {
-  id("io.github.fletchmckee.ktjni.settings")
 }
 
 @Suppress("UnstableApiUsage")
@@ -22,20 +29,8 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "ktjni"
-
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
-
 include(
   ":plugin",
   ":samples:demo",
   ":samples:simple",
 )
-
-includeBuild("build-support") {
-  dependencySubstitution {
-    substitute(module("io.github.fletchmckee.ktjni.build:gradle-plugin")).using(project(":"))
-    substitute(module("io.github.fletchmckee.ktjni:plugin")).using(project(":plugin"))
-  }
-}
