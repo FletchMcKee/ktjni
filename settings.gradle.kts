@@ -11,7 +11,7 @@ pluginManagement {
     @Suppress("UnstableApiUsage")
     maven {
       name = "localRepo"
-      url = uri(layout.settingsDirectory.dir("plugin/build/repo"))
+      url = uri(layout.settingsDirectory.dir("plugin/build/local-repo"))
     }
 
     google()
