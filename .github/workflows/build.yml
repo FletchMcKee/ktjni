@@ -63,6 +63,9 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v6
 
+      - name: Publish plugin to localRepo repository
+        run: ./gradlew :plugin:publishAllPublicationsToLocalRepoRepository
+
       - run: ./gradlew publish --no-configuration-cache
         env:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.SONATYPE_CENTRAL_USERNAME }}
