@@ -6,31 +6,29 @@ import java.io.File
 import java.util.Properties
 import org.gradle.testkit.runner.GradleRunner
 
-// Credit to the SqlDelight team.
-// https://github.com/sqldelight/sqldelight/blob/master/sqldelight-gradle-plugin/src/instrumentationTest/kotlin/app/cash/sqldelight/AndroidHome.kt
 internal fun androidHome(): String {
   System.getenv("ANDROID_SDK_ROOT")?.let { return it.withInvariantPathSeparators() }
   System.getenv("ANDROID_HOME")?.let { return it.withInvariantPathSeparators() }
 
   val localProp = File(File(System.getProperty("user.dir")).parentFile, "local.properties")
-  if (localProp.exists()) {
-    val prop = Properties()
-    localProp.inputStream().use {
-      prop.load(it)
-    }
-    val sdkHome = prop.getProperty("sdk.dir")
-    if (sdkHome != null) {
-      return sdkHome.withInvariantPathSeparators()
-    }
+  check(localProp.exists()) { "Missing 'ANDROID_HOME' environment variable or local.properties with 'sdk.dir'" }
+  val prop = Properties()
+  localProp.inputStream().use {
+    prop.load(it)
   }
-  error("Missing 'ANDROID_HOME' environment variable or local.properties with 'sdk.dir'")
+  return prop.getProperty("sdk.dir").withInvariantPathSeparators()
 }
 
-internal fun GradleRunner.withAndroidConfiguration(projectRoot: File): GradleRunner {
+internal fun GradleRunner.withAndroidConfiguration(
+  projectRoot: File,
+  builtInKotlin: Boolean = true,
+): GradleRunner {
   File(projectRoot, "gradle.properties").writeText(
     """
       org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g
       android.useAndroidX=true
+      android.builtInKotlin=$builtInKotlin
+      android.newDsl=$builtInKotlin
     """.trimIndent(),
   )
   File(projectRoot, "local.properties").apply {
@@ -40,128 +38,11 @@ internal fun GradleRunner.withAndroidConfiguration(projectRoot: File): GradleRun
     .withTestKitDir(File("build/gradle-test-kit").absoluteFile)
 }
 
-internal fun File.writeKmpLegacyAndroidLibraryBuildFile(kotlinAndroid: AndroidVersion) = writeText(
-  """
-  import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-  import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
-  plugins {
-    id("com.android.library") version "8.13.2"
-    kotlin("multiplatform") version "${kotlinAndroid.kotlin}"
-    id("io.github.fletchmckee.ktjni")
-  }
-
-  android {
-    compileSdk = 36
-    defaultConfig {
-      minSdk = 23
-      namespace = "com.example"
-    }
-
-    compileOptions {
-      sourceCompatibility = JavaVersion.VERSION_${kotlinAndroid.jdk}
-      targetCompatibility = JavaVersion.VERSION_${kotlinAndroid.jdk}
-    }
-  }
-
-  tasks.withType<KotlinCompile>().configureEach {
-    compilerOptions {
-      jvmTarget.set(JvmTarget.valueOf("JVM_${kotlinAndroid.jdk}"))
-    }
-  }
-
-  kotlin {
-    androidTarget()
-  }
-  """.trimIndent(),
-)
-
-internal fun File.writeKmpAndroidLibraryBuildFile(kotlinAndroid: AndroidVersion) = writeText(
-  """
-  import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-  import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
-  plugins {
-    id("com.android.kotlin.multiplatform.library") version "${kotlinAndroid.agp}"
-    kotlin("multiplatform") version "${kotlinAndroid.kotlin}"
-    id("io.github.fletchmckee.ktjni")
-  }
-
-  kotlin {
-    androidLibrary {
-      compileSdk { version = release(36) }
-      minSdk = 23
-      namespace = "com.example"
-
-      compilerOptions {
-        jvmTarget.set(JvmTarget.valueOf("JVM_${kotlinAndroid.jdk}"))
-      }
-    }
-  }
-  """.trimIndent(),
-)
-
-internal fun File.writeKotlinAndroidLibraryBuildFile(kotlinAndroid: AndroidVersion) = writeText(
-  """
-  import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-  import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
-  plugins {
-    id("com.android.library") version "${kotlinAndroid.agp}"
-    kotlin("android") version "${kotlinAndroid.kotlin}"
-    id("io.github.fletchmckee.ktjni")
-  }
-
-  android {
-    compileSdk = 36
-    defaultConfig {
-      minSdk = 21
-      namespace = "com.example"
-    }
-
-    compileOptions {
-      sourceCompatibility = JavaVersion.VERSION_${kotlinAndroid.jdk}
-      targetCompatibility = JavaVersion.VERSION_${kotlinAndroid.jdk}
-    }
-  }
-
-  tasks.withType<KotlinCompile>().configureEach {
-    compilerOptions {
-      jvmTarget.set(JvmTarget.valueOf("JVM_${kotlinAndroid.jdk}"))
-    }
-  }
-
-  """.trimIndent(),
-)
-
-internal fun File.writeJavaAndroidLibraryBuildFile(javaAndroid: AndroidVersion) = writeText(
-  """
-  plugins {
-    id("com.android.library") version "${javaAndroid.agp}"
-    id("io.github.fletchmckee.ktjni")
-  }
-
-  android {
-    compileSdk = 36
-    defaultConfig {
-      minSdk = 21
-      namespace = "com.example"
-    }
-
-    compileOptions {
-      sourceCompatibility = JavaVersion.VERSION_${javaAndroid.jdk}
-      targetCompatibility = JavaVersion.VERSION_${javaAndroid.jdk}
-    }
-  }
-
-  """.trimIndent(),
-)
-
-@Suppress("unused") // Invoked from ParameterizedTest
-enum class AndroidVersion(val agp: String, val kotlin: String, val jdk: Int) {
-  K1_8_J11(agp = "8.1.4", kotlin = "1.9.20", jdk = 11),
-  K1_9_J17(agp = "8.5.2", kotlin = "1.9.23", jdk = 17),
-  K2_0_J21(agp = "8.7.3", kotlin = "2.0.20", jdk = 21),
-  K2_2_J22(agp = "8.9.0", kotlin = "2.2.0", jdk = 22),
-  K2_3_J25(agp = "8.13.2", kotlin = "2.3.0", jdk = 25),
+internal fun File.writeAndroidManifestFile(sourceSet: String = "main") {
+  File(this, "src/$sourceSet/AndroidManifest.xml").writeText(
+    """
+      <!--suppress XmlUnusedNamespaceDeclaration -->
+      <manifest xmlns:android="http://schemas.android.com/apk/res/android"/>
+    """.trimIndent(),
+  )
 }

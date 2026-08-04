@@ -13,7 +13,6 @@ import io.github.fletchmckee.ktjni.util.orZero
 import java.io.File
 import java.io.FileInputStream
 import java.io.PrintWriter
-import kotlin.text.iterator
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.Type
 import org.objectweb.asm.tree.ClassNode

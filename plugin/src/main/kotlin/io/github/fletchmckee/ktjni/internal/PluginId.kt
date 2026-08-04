@@ -10,5 +10,5 @@ internal enum class PluginId(internal val id: String) {
   AndroidLibrary("com.android.library"),
 
   Scala("scala"),
-  Java("java"),
+  Java("org.gradle.java-base"),
 }

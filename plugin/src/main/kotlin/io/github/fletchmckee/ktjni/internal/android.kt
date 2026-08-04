@@ -10,7 +10,7 @@ import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.tasks.compile.JavaCompile
-import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 internal fun Project.configureAndroidVariants(
@@ -19,11 +19,8 @@ internal fun Project.configureAndroidVariants(
 ) {
   val androidExtension = extensions.getByType(AndroidComponentsExtension::class.java)
   androidExtension.onVariants { variant ->
-    configureKotlinAndroid(variant, headerOutputDir, aggregate)
-    configureJavaAndroid(variant, headerOutputDir, aggregate)
-
     @Suppress("UnstableApiUsage")
-    variant.nestedComponents.forEach { nested ->
+    variant.components.forEach { nested ->
       configureKotlinAndroid(nested, headerOutputDir, aggregate)
       configureJavaAndroid(nested, headerOutputDir, aggregate)
     }
@@ -57,7 +54,10 @@ private fun Project.configureKotlinAndroid(
   headerOutputDir: DirectoryProperty,
   aggregate: ConfigurableFileCollection,
 ) {
-  val kotlinAndroid = project.extensions.findByType(KotlinAndroidExtension::class.java) ?: return
+  // We have to guard this with runCatching in case it's a Java Android project.
+  val kotlinAndroid = runCatching {
+    project.extensions.findByType(KotlinAndroidProjectExtension::class.java)
+  }.getOrNull() ?: return
   kotlinAndroid.target.compilations.matching { it.name == variant.name }
     .configureEach {
       val compileSourceDir = compileTaskProvider.map { it as KotlinJvmCompile }
