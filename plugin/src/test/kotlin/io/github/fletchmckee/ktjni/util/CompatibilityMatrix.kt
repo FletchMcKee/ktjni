@@ -12,7 +12,7 @@ enum class CompatibleMatrix(
   val scala: String = "",
 ) {
   Min(
-    agp = "8.7.0",
+    agp = "8.3.0",
     kgp = "1.9.0",
     gradle = "8.14.4",
     compileSdk = 34,
