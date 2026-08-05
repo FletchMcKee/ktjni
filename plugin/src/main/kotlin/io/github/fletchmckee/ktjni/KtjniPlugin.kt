@@ -14,6 +14,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.scala.ScalaCompile
@@ -29,7 +30,7 @@ public class KtjniPlugin : Plugin<Project> {
       group = GROUP
       description = "Generates JNI headers for all JVM compile tasks"
 
-      // Using `inputs.files` instead of `dependsOn` allows for better up-to-date checking.
+      // Using `inputs.files` instead of `dependsOn` enables better up-to-date checking.
       inputs.files(aggregate)
     }
 
@@ -58,11 +59,11 @@ public class KtjniPlugin : Plugin<Project> {
     headerOutputDir: DirectoryProperty,
     aggregate: ConfigurableFileCollection,
   ) {
-    plugins.withId(PluginId.KotlinMultiplatform.id) {
+    pluginManager.withPlugin(PluginId.KotlinMultiplatform.id) {
       configureKotlinMultiplatform(headerOutputDir, aggregate)
     }
 
-    plugins.withId(PluginId.KotlinJvm.id) {
+    pluginManager.withPlugin(PluginId.KotlinJvm.id) {
       configureKotlinJvm(headerOutputDir, aggregate)
     }
   }
@@ -110,7 +111,7 @@ public class KtjniPlugin : Plugin<Project> {
 internal fun Project.registerKtjniTask(
   language: String,
   sourceSetName: String,
-  compileSourceDir: ConfigurableFileCollection,
+  compileSourceDir: FileCollection,
   headerOutputDir: DirectoryProperty,
   aggregate: ConfigurableFileCollection,
   target: String = "", // For Kotlin Multiplatform

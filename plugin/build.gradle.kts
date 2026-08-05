@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import com.vanniktech.maven.publish.GradlePlugin
 import com.vanniktech.maven.publish.JavadocJar
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -32,18 +34,28 @@ tasks.withType<ValidatePlugins>().configureEach {
 val localRepo: Provider<Directory> = layout.buildDirectory.dir("local-repo")
 
 tasks.withType<Test>().configureEach {
+  maxHeapSize = "1g"
   useJUnitPlatform()
+
+  testLogging {
+    events(TestLogEvent.FAILED, TestLogEvent.SKIPPED, TestLogEvent.PASSED)
+    exceptionFormat = TestExceptionFormat.FULL
+  }
 
   dependsOn("publishAllPublicationsToLocalRepoRepository")
   inputs
     .files(localRepo.map { it.asFileTree.matching { exclude("**/maven-metadata.xml*") } })
     .withPathSensitivity(PathSensitivity.RELATIVE)
-    .withPropertyName("repo")
+    .withPropertyName("localRepo")
 
-  val repoPath: Provider<String> = localRepo.map { it.asFile.absolutePath }
+  systemProperties["ktjniVersion"] = providers.gradleProperty("VERSION_NAME").get()
+  systemProperties["agpVersion"] = libs.versions.agp.get()
+  systemProperties["kgpVersion"] = libs.versions.kotlin.get()
+  systemProperties["scalaVersion"] = libs.versions.scala.get()
+  val localRepoPath: Provider<String> = localRepo.map { it.asFile.absolutePath }
 
   doFirst {
-    systemProperties["repoPath"] = repoPath.get()
+    systemProperties["localRepoPath"] = localRepoPath.get()
   }
 }
 
