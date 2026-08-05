@@ -19,10 +19,21 @@ internal fun androidHome(): String {
   return prop.getProperty("sdk.dir").withInvariantPathSeparators()
 }
 
+// https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-main:common/src/main/java/com/android/prefs/AbstractAndroidLocations.kt?q=xdg_config_home
+private val androidPrefsRoot: File = File("build/android-prefs").absoluteFile
+private val androidPrefsDir: File = File(androidPrefsRoot, ".android")
+
+private fun createAndroidPrefsDir() {
+  File(androidPrefsDir, "cache").mkdirs()
+  System.setProperty("ANDROID_USER_HOME", androidPrefsDir.absolutePath.withInvariantPathSeparators())
+  System.setProperty("ANDROID_PREFS_ROOT", androidPrefsRoot.absolutePath.withInvariantPathSeparators())
+}
+
 internal fun GradleRunner.withAndroidConfiguration(
   projectRoot: File,
   builtInKotlin: Boolean = true,
 ): GradleRunner {
+  createAndroidPrefsDir()
   File(projectRoot, "gradle.properties").writeText(
     """
       org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g
