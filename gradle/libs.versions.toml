@@ -54,7 +54,7 @@ spotless-gradlePlugin = { module = "com.diffplug.spotless:spotless-plugin-gradle
 
 [plugins]
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
-binary-compatibility-validator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version = "0.18.1" }
+binary-compatibility-validator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version = "0.18.2" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 ktjni = { id = "io.github.fletchmckee.ktjni", version.ref = "ktjni" }
 android-application = { id = "com.android.application", version.ref = "agp" }
