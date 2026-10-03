@@ -9,6 +9,7 @@ import org.gradle.kotlin.dsl.configure
 
 internal fun Project.configureSpotless() {
   apply(plugin = "com.diffplug.spotless")
+  @Suppress("UnstableApiUsage")
   spotless {
     kotlin {
       target("src/**/*.kt")
@@ -20,14 +21,20 @@ internal fun Project.configureSpotless() {
             "ktlint_function_naming_ignore_when_annotated_with" to "Composable",
           ),
         )
-      licenseHeaderFile(rootProject.file("spotless/copyright.txt"))
+      licenseHeaderFile(isolated.rootProject.projectDirectory.file("spotless/copyright.txt"))
       endWithNewline()
     }
 
     kotlinGradle {
       target("*.kts")
       ktlint(libs.findVersion("ktlint").get().requiredVersion)
-      licenseHeaderFile(rootProject.file("spotless/copyright.txt"), "(^(?![\\/ ]\\**).*$)")
+        .editorConfigOverride(
+          mapOf(
+            "ktlint_standard_filename" to "disabled",
+            "ktlint_standard_property-naming" to "disabled",
+          ),
+        )
+      licenseHeaderFile(isolated.rootProject.projectDirectory.file("spotless/copyright.txt"), "(^(?![\\/ ]\\**).*$)")
       endWithNewline()
     }
   }
@@ -35,6 +42,7 @@ internal fun Project.configureSpotless() {
 
 internal fun Project.configureSpotlessRoot() {
   apply(plugin = "com.diffplug.spotless")
+  @Suppress("UnstableApiUsage")
   spotless {
     kotlin {
       target("build-logic/convention/src/**/*.kt")
@@ -45,7 +53,7 @@ internal fun Project.configureSpotlessRoot() {
             "ktlint_standard_property-naming" to "disabled",
           ),
         )
-      licenseHeaderFile(rootProject.file("spotless/copyright.txt"))
+      licenseHeaderFile(isolated.rootProject.projectDirectory.file("spotless/copyright.txt"))
       endWithNewline()
     }
 
@@ -54,7 +62,13 @@ internal fun Project.configureSpotlessRoot() {
       target("build-logic/*.kts")
       target("build-logic/convention/*.kts")
       ktlint(libs.findVersion("ktlint").get().requiredVersion)
-      licenseHeaderFile(rootProject.file("spotless/copyright.txt"), "(^(?![\\/ ]\\**).*$)")
+        .editorConfigOverride(
+          mapOf(
+            "ktlint_standard_filename" to "disabled",
+            "ktlint_standard_property-naming" to "disabled",
+          ),
+        )
+      licenseHeaderFile(isolated.rootProject.projectDirectory.file("spotless/copyright.txt"), "(^(?![\\/ ]\\**).*$)")
       endWithNewline()
     }
   }

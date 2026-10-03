@@ -8,12 +8,6 @@ enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
 pluginManagement {
   includeBuild("build-logic")
   repositories {
-    @Suppress("UnstableApiUsage")
-    maven {
-      name = "localRepo"
-      url = uri(layout.settingsDirectory.dir("plugin/build/local-repo"))
-    }
-
     google()
     mavenCentral()
     gradlePluginPortal()
@@ -29,8 +23,4 @@ dependencyResolutionManagement {
   }
 }
 
-include(
-  ":plugin",
-  ":samples:demo",
-  ":samples:simple",
-)
+include(":plugin")

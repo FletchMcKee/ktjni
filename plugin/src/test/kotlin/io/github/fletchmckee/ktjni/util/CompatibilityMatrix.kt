@@ -13,7 +13,7 @@ enum class CompatibleMatrix(
 ) {
   Min(
     agp = "8.3.0",
-    kgp = "1.9.0",
+    kgp = "2.0.0",
     gradle = "8.14.4",
     compileSdk = 34,
     scala = "2.13.12",
