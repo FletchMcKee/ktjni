@@ -8,7 +8,6 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
   `kotlin-dsl`
-  `java-gradle-plugin`
   alias(libs.plugins.ktjni.spotless)
   alias(libs.plugins.binary.compatibility.validator)
   alias(libs.plugins.maven.publish)
@@ -19,12 +18,12 @@ kotlin {
 
   compilerOptions {
     jvmTarget.set(JvmTarget.JVM_11)
+    freeCompilerArgs.add("-Xjdk-release=11")
   }
 }
 
-java {
-  sourceCompatibility = JavaVersion.VERSION_11
-  targetCompatibility = JavaVersion.VERSION_11
+tasks.withType<JavaCompile>().configureEach {
+  options.release = 11
 }
 
 tasks.withType<ValidatePlugins>().configureEach {
