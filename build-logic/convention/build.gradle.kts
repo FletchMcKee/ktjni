@@ -18,18 +18,12 @@ tasks.validatePlugins {
 gradlePlugin {
   plugins {
     register("root") {
-      id =
-        libs.plugins.ktjni.root
-          .get()
-          .pluginId
+      id = libs.plugins.ktjni.root.get().pluginId
       implementationClass = "RootConventionPlugin"
     }
 
     register("spotless") {
-      id =
-        libs.plugins.ktjni.spotless
-          .get()
-          .pluginId
+      id = libs.plugins.ktjni.spotless.get().pluginId
       implementationClass = "SpotlessConventionPlugin"
     }
   }

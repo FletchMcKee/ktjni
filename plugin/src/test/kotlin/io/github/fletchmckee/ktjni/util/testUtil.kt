@@ -163,7 +163,7 @@ private fun createTestRunner(
   android: Boolean = false,
   builtInKotlin: Boolean = true,
   gradleVersion: String? = null,
-  vararg tasks: String = arrayOf("--configuration-cache"),
+  vararg tasks: String = arrayOf("--configuration-cache", "-Dorg.gradle.unsafe.isolated-projects=true"),
 ): BuildResult = GradleRunner.create()
   .apply {
     forwardOutput()
