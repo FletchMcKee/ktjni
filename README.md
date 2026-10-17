@@ -34,13 +34,13 @@ plugins {
 }
 
 // If no `outputDir` is specified, it defaults to the following location:
-// {projectDir}/build/generated/ktjni/{sourceType}/{sourceSet}
+// {projectDir}/build/generated/ktjni/{sourceSet}
 ktjni {
   outputDir = layout.buildDirectory.dir("custom")
 }
 ```
 
-Whether using the default `outputDir` or a custom location, the `sourceType` and `sourceSet` are added as subdirectories for configuration cache correctness.
+Whether using the default `outputDir` or a custom location, the `sourceSet` is added as subdirectory for configuration cache correctness.
 
 ## Usage
 Header generation currently requires manual execution and does not automatically integrate with the build process.
@@ -130,7 +130,9 @@ JNIEXPORT jbyteArray JNICALL Java_com_example_Crypto_sha256
 - [x] **Kotlin Android** (`org.jetbrains.kotlin.android`)
 - [x] **Java** (via `java` or `java-library` plugins)
 - [x] **Scala** (`scala` plugin)
-- [x] **Android build variants** (`com.android.library` or `com.android.application`)
+- [x] **Android Application** (`com.android.application`)
+- [x] **Android Library** (`com.android.library`)
+- [x] **Android Multiplatform Library** (`com.android.kotlin.multiplatform.library`) 
 
 ## License
 
