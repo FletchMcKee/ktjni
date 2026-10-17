@@ -2,7 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.fletchmckee.ktjni.util
 
-import com.google.common.truth.Truth.assertThat
+import assertk.Assert
+import assertk.assertThat
+import assertk.assertions.contains
+import assertk.assertions.isEqualTo
+import assertk.assertions.isTrue
 import java.io.File
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
@@ -43,23 +47,27 @@ internal fun BuildResult.assertAggregateOutcome(outcome: TaskOutcome = TaskOutco
   return this
 }
 
-internal inline fun <reified T : Language> BuildResult.assertVariantOutcome(
+internal fun BuildResult.assertVariantOutcome(
   outcome: TaskOutcome? = TaskOutcome.SUCCESS,
   vararg variants: String,
 ): BuildResult {
   variants.forEach { variant ->
-    assertThat(task(":generate${T::class.simpleName}${variant.titleCase}JniHeaders")?.outcome)
+    assertThat(task(":generate${variant.titleCase}JniHeaders")?.outcome)
       .isEqualTo(outcome)
   }
   return this
 }
 
-internal inline fun <reified T : Language> assertVariantHeaders(
+internal fun Assert<BuildResult>.taskOutcomes(vararg taskNames: String) = transform {
+  taskNames.map { name -> it.task(":$name")?.outcome }
+}
+
+internal fun assertVariantHeaders(
   projectDir: File,
   vararg variants: String,
 ) {
   variants.forEach { variant ->
-    assertHeaders(projectDir, "build/generated/ktjni/${T::class.simpleName?.lowercase()}/$variant")
+    assertHeaders(projectDir, "build/generated/ktjni/$variant")
   }
 }
 
@@ -114,11 +122,11 @@ internal fun File.writeKotlinExampleFile(
   val srcDir = File(this, "src/$sourceSet/kotlin/com/example").apply { mkdirs() }
   File(srcDir, "Example.$extension").writeText(
     """
-  package com.example
+    package com.example
 
-  class Example {
-    external fun exampleNative(): Int
-  }
+    class Example {
+      external fun exampleNative(): Int
+    }
 
     """.trimIndent(),
   )

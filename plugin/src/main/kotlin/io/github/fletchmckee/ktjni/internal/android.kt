@@ -2,72 +2,42 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.fletchmckee.ktjni.internal
 
+import com.android.build.api.artifact.ScopedArtifact
 import com.android.build.api.variant.AndroidComponentsExtension
-import com.android.build.api.variant.Component
+import com.android.build.api.variant.ScopedArtifacts
+import io.github.fletchmckee.ktjni.KtjniExtension
 import io.github.fletchmckee.ktjni.registerKtjniTask
-import io.github.fletchmckee.ktjni.util.titleCase
 import org.gradle.api.Project
-import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.tasks.compile.JavaCompile
-import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
-import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
+import org.gradle.api.file.Directory
+import org.gradle.api.file.RegularFile
 
-internal fun Project.configureAndroidVariants(
-  headerOutputDir: DirectoryProperty,
-  aggregate: ConfigurableFileCollection,
-) {
+context(ktjniExtension: KtjniExtension)
+internal fun Project.configureAndroid() = listOf(
+  "com.android.library",
+  "com.android.application",
+  "com.android.kotlin.multiplatform.library",
+).forEach { id ->
+  pluginManager.withPlugin(id) {
+    configureAndroidVariants()
+  }
+}
+
+context(ktjniExtension: KtjniExtension)
+private fun Project.configureAndroidVariants() {
   val androidExtension = extensions.getByType(AndroidComponentsExtension::class.java)
   androidExtension.onVariants { variant ->
     @Suppress("UnstableApiUsage")
     variant.components.forEach { nested ->
-      configureKotlinAndroid(nested, headerOutputDir, aggregate)
-      configureJavaAndroid(nested, headerOutputDir, aggregate)
+      val classDirs = objects.listProperty(Directory::class.java)
+      val ktjniTask = registerKtjniTask(nested.name, files(classDirs))
+
+      nested.artifacts.forScope(ScopedArtifacts.Scope.PROJECT)
+        .use(ktjniTask)
+        .toGet(
+          type = ScopedArtifact.CLASSES,
+          inputJars = { objects.listProperty(RegularFile::class.java) },
+          inputDirectories = { classDirs },
+        )
     }
   }
-}
-
-private fun Project.configureJavaAndroid(
-  variant: Component,
-  headerOutputDir: DirectoryProperty,
-  aggregate: ConfigurableFileCollection,
-) {
-  val compileTaskName = "compile${variant.name.titleCase}JavaWithJavac"
-  // Defers task lookup until execution since the task won't exist yet.
-  val compileSourceDir = providers.provider {
-    tasks.named(compileTaskName, JavaCompile::class.java)
-  }.flatMap { taskProvider ->
-    taskProvider.flatMap { task -> task.destinationDirectory }
-  }
-
-  registerKtjniTask(
-    language = "java",
-    sourceSetName = variant.name,
-    compileSourceDir = objects.fileCollection().from(compileSourceDir),
-    headerOutputDir = headerOutputDir,
-    aggregate = aggregate,
-  )
-}
-
-private fun Project.configureKotlinAndroid(
-  variant: Component,
-  headerOutputDir: DirectoryProperty,
-  aggregate: ConfigurableFileCollection,
-) {
-  // We have to guard this with runCatching in case it's a Java Android project.
-  val kotlinAndroid = runCatching {
-    project.extensions.findByType(KotlinAndroidProjectExtension::class.java)
-  }.getOrNull() ?: return
-  kotlinAndroid.target.compilations.matching { it.name == variant.name }
-    .configureEach {
-      val compileSourceDir = compileTaskProvider.map { it as KotlinJvmCompile }
-        .map { it.destinationDirectory }
-      registerKtjniTask(
-        language = "kotlin",
-        sourceSetName = variant.name,
-        compileSourceDir = objects.fileCollection().from(compileSourceDir),
-        headerOutputDir = headerOutputDir,
-        aggregate = aggregate,
-      )
-    }
 }

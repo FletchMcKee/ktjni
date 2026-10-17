@@ -2,14 +2,18 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.fletchmckee.ktjni
 
+import assertk.all
+import assertk.assertThat
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNull
+import assertk.assertions.single
 import io.github.fletchmckee.ktjni.dsl.buildProject
 import io.github.fletchmckee.ktjni.util.CompatibleMatrix.Latest
 import io.github.fletchmckee.ktjni.util.CompatibleMatrix.Min
-import io.github.fletchmckee.ktjni.util.Language.Java
-import io.github.fletchmckee.ktjni.util.Language.Kotlin
 import io.github.fletchmckee.ktjni.util.assertRuns
 import io.github.fletchmckee.ktjni.util.assertVariantHeaders
 import io.github.fletchmckee.ktjni.util.assertVariantOutcome
+import io.github.fletchmckee.ktjni.util.taskOutcomes
 import io.github.fletchmckee.ktjni.util.writeCommonSettingsFile
 import io.github.fletchmckee.ktjni.util.writeJavaExampleFile
 import io.github.fletchmckee.ktjni.util.writeKotlinExampleFile
@@ -50,11 +54,9 @@ class KotlinMultiplatformPluginTest {
       projectDir = projectRoot,
       compatibleMatrix = Latest,
       assert = { firstRun, secondRun ->
-        firstRun
-          .assertVariantOutcome<Kotlin>(TaskOutcome.SUCCESS, "jvmMain", "androidMain")
-        secondRun
-          .assertVariantOutcome<Kotlin>(TaskOutcome.UP_TO_DATE, "jvmMain", "androidMain")
-        assertVariantHeaders<Kotlin>(projectRoot, "jvmMain", "androidMain")
+        firstRun.assertVariantOutcome(TaskOutcome.SUCCESS, "jvmMain", "androidMain")
+        secondRun.assertVariantOutcome(TaskOutcome.UP_TO_DATE, "jvmMain", "androidMain")
+        assertVariantHeaders(projectRoot, "jvmMain", "androidMain")
       },
     )
   }
@@ -82,11 +84,10 @@ class KotlinMultiplatformPluginTest {
       projectDir = projectRoot,
       compatibleMatrix = Min,
       assert = { firstRun, secondRun ->
-        firstRun
-          .assertVariantOutcome<Kotlin>(TaskOutcome.SUCCESS, "jvmMain", "androidRelease", "androidDebug")
-        secondRun
-          .assertVariantOutcome<Kotlin>(TaskOutcome.UP_TO_DATE, "jvmMain", "androidRelease", "androidDebug")
-        assertVariantHeaders<Kotlin>(projectRoot, "jvmMain", "androidRelease", "androidDebug")
+        firstRun.assertVariantOutcome(TaskOutcome.SUCCESS, "jvmMain", "release", "debug")
+        firstRun.assertVariantOutcome(null, "androidDebug", "androidRelease")
+        secondRun.assertVariantOutcome(TaskOutcome.UP_TO_DATE, "jvmMain", "release", "debug")
+        assertVariantHeaders(projectRoot, "jvmMain", "release", "debug")
       },
     )
   }
@@ -115,20 +116,17 @@ class KotlinMultiplatformPluginTest {
       assert =
       { firstRun, secondRun ->
         firstRun
-          .assertVariantOutcome<Kotlin>(TaskOutcome.SUCCESS, "jvmMain")
-          .assertVariantOutcome<Kotlin>(TaskOutcome.NO_SOURCE, "androidMain")
+          .assertVariantOutcome(TaskOutcome.SUCCESS, "jvmMain")
+          .assertVariantOutcome(TaskOutcome.NO_SOURCE, "androidMain")
         secondRun
-          .assertVariantOutcome<Kotlin>(TaskOutcome.UP_TO_DATE, "jvmMain")
-        assertVariantHeaders<Kotlin>(projectRoot, "jvmMain")
+          .assertVariantOutcome(TaskOutcome.UP_TO_DATE, "jvmMain")
+        assertVariantHeaders(projectRoot, "jvmMain")
       },
     )
   }
 
   @Test fun `min - jvmMain generates headers for jvm only`() {
-    projectRoot.writeKotlinExampleFile(
-      sourceSet = "jvmMain",
-      extension = "jvm.kt",
-    )
+    projectRoot.writeKotlinExampleFile(sourceSet = "jvmMain", extension = "jvm.kt")
 
     buildProject(buildFile) {
       plugins {
@@ -150,12 +148,9 @@ class KotlinMultiplatformPluginTest {
       projectDir = projectRoot,
       compatibleMatrix = Min,
       assert = { firstRun, secondRun ->
-        firstRun
-          .assertVariantOutcome<Kotlin>(TaskOutcome.SUCCESS, "jvmMain")
-          .assertVariantOutcome<Kotlin>(TaskOutcome.NO_SOURCE, "androidRelease", "androidDebug")
-        secondRun
-          .assertVariantOutcome<Kotlin>(TaskOutcome.UP_TO_DATE, "jvmMain")
-        assertVariantHeaders<Kotlin>(projectRoot, "jvmMain")
+        firstRun.assertVariantOutcome(TaskOutcome.SUCCESS, "jvmMain")
+        secondRun.assertVariantOutcome(TaskOutcome.UP_TO_DATE, "jvmMain")
+        assertVariantHeaders(projectRoot, "jvmMain")
       },
     )
   }
@@ -183,11 +178,11 @@ class KotlinMultiplatformPluginTest {
       compatibleMatrix = Latest,
       assert = { firstRun, secondRun ->
         firstRun
-          .assertVariantOutcome<Kotlin>(TaskOutcome.SUCCESS, "androidMain")
-          .assertVariantOutcome<Kotlin>(TaskOutcome.NO_SOURCE, "jvmMain")
+          .assertVariantOutcome(TaskOutcome.SUCCESS, "androidMain")
+          .assertVariantOutcome(TaskOutcome.NO_SOURCE, "jvmMain")
         secondRun
-          .assertVariantOutcome<Kotlin>(TaskOutcome.UP_TO_DATE, "androidMain")
-        assertVariantHeaders<Kotlin>(projectRoot, "androidMain")
+          .assertVariantOutcome(TaskOutcome.UP_TO_DATE, "androidMain")
+        assertVariantHeaders(projectRoot, "androidMain")
       },
     )
   }
@@ -218,12 +213,9 @@ class KotlinMultiplatformPluginTest {
       projectDir = projectRoot,
       compatibleMatrix = Min,
       assert = { firstRun, secondRun ->
-        firstRun
-          .assertVariantOutcome<Kotlin>(TaskOutcome.SUCCESS, "androidRelease")
-          .assertVariantOutcome<Kotlin>(TaskOutcome.NO_SOURCE, "jvmMain")
-        secondRun
-          .assertVariantOutcome<Kotlin>(TaskOutcome.UP_TO_DATE, "androidRelease")
-        assertVariantHeaders<Kotlin>(projectRoot, "androidRelease")
+        firstRun.assertVariantOutcome(TaskOutcome.SUCCESS, "release")
+        secondRun.assertVariantOutcome(TaskOutcome.UP_TO_DATE, "release")
+        assertVariantHeaders(projectRoot, "release")
       },
     )
   }
@@ -248,16 +240,15 @@ class KotlinMultiplatformPluginTest {
       android = false,
       assert = { firstRun, secondRun ->
         firstRun
-          .assertVariantOutcome<Java>(TaskOutcome.SUCCESS, "jvmMain")
-          .assertVariantOutcome<Kotlin>(TaskOutcome.NO_SOURCE, "jvmMain")
-        secondRun
-          .assertVariantOutcome<Java>(TaskOutcome.UP_TO_DATE, "jvmMain")
-        assertVariantHeaders<Java>(projectRoot, "jvmMain")
+          .assertVariantOutcome(TaskOutcome.SUCCESS, "jvmMain")
+          .assertVariantOutcome(null, "main")
+        secondRun.assertVariantOutcome(TaskOutcome.UP_TO_DATE, "jvmMain")
+        assertVariantHeaders(projectRoot, "jvmMain")
       },
     )
   }
 
-  @Test fun `min - generates headers for Kotlin Multiplatform Java classes`() {
+  @Test fun `min - generates headers for Kotlin Multiplatform Java classes withJava`() {
     projectRoot.writeJavaExampleFile(sourceSet = "jvmMain")
 
     buildProject(buildFile) {
@@ -276,12 +267,98 @@ class KotlinMultiplatformPluginTest {
       compatibleMatrix = Min,
       android = false,
       assert = { firstRun, secondRun ->
-        firstRun
-          .assertVariantOutcome<Java>(TaskOutcome.SUCCESS, "main")
-          .assertVariantOutcome<Kotlin>(TaskOutcome.NO_SOURCE, "jvmMain")
-        secondRun
-          .assertVariantOutcome<Java>(TaskOutcome.UP_TO_DATE, "main")
-        assertVariantHeaders<Java>(projectRoot, "main")
+        assertThat(firstRun).all {
+          taskOutcomes("generateMainJniHeaders")
+            .single()
+            .isEqualTo(TaskOutcome.SUCCESS)
+
+          taskOutcomes("generateJvmMainJniHeaders")
+            .single()
+            // Verify we prevent any KMP overlap by skipping.
+            .isEqualTo(TaskOutcome.SKIPPED)
+        }
+
+        assertThat(secondRun)
+          .taskOutcomes("generateMainJniHeaders")
+          .single()
+          .isEqualTo(TaskOutcome.UP_TO_DATE)
+        assertVariantHeaders(projectRoot, "main")
+      },
+    )
+  }
+
+  @Test fun `latest - generates headers for Kotlin Multiplatform Kotlin classes`() {
+    projectRoot.writeKotlinExampleFile(sourceSet = "jvmMain")
+
+    buildProject(buildFile) {
+      plugins {
+        kotlinMultiplatform(Latest.kgp)
+      }
+
+      java()
+      kotlin {
+        jvm()
+      }
+    }
+
+    assertRuns(
+      projectDir = projectRoot,
+      compatibleMatrix = Latest,
+      android = false,
+      assert = { firstRun, secondRun ->
+        assertThat(firstRun).all {
+          taskOutcomes("generateJvmMainJniHeaders")
+            .single()
+            .isEqualTo(TaskOutcome.SUCCESS)
+
+          taskOutcomes("generateMainJniHeaders")
+            .single()
+            .isNull()
+        }
+
+        assertThat(secondRun)
+          .taskOutcomes("generateJvmMainJniHeaders")
+          .single()
+          .isEqualTo(TaskOutcome.UP_TO_DATE)
+        assertVariantHeaders(projectRoot, "jvmMain")
+      },
+    )
+  }
+
+  @Test fun `min - generates headers for Kotlin Multiplatform Kotlin classes`() {
+    projectRoot.writeKotlinExampleFile(sourceSet = "jvmMain")
+
+    buildProject(buildFile) {
+      plugins {
+        kotlinMultiplatform(Min.kgp)
+      }
+
+      java()
+      kotlin {
+        jvm()
+      }
+    }
+
+    assertRuns(
+      projectDir = projectRoot,
+      compatibleMatrix = Min,
+      android = false,
+      assert = { firstRun, secondRun ->
+        assertThat(firstRun).all {
+          taskOutcomes("generateJvmMainJniHeaders")
+            .single()
+            .isEqualTo(TaskOutcome.SUCCESS)
+
+          taskOutcomes("generateMainJniHeaders")
+            .single()
+            .isNull()
+        }
+
+        assertThat(secondRun)
+          .taskOutcomes("generateJvmMainJniHeaders")
+          .single()
+          .isEqualTo(TaskOutcome.UP_TO_DATE)
+        assertVariantHeaders(projectRoot, "jvmMain")
       },
     )
   }

@@ -2,14 +2,18 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.fletchmckee.ktjni
 
+import assertk.all
+import assertk.assertThat
+import assertk.assertions.containsOnly
+import assertk.assertions.isNull
+import assertk.assertions.single
 import io.github.fletchmckee.ktjni.dsl.buildProject
 import io.github.fletchmckee.ktjni.util.CompatibleMatrix.Latest
 import io.github.fletchmckee.ktjni.util.CompatibleMatrix.Min
-import io.github.fletchmckee.ktjni.util.Language.Java
-import io.github.fletchmckee.ktjni.util.Language.Kotlin
 import io.github.fletchmckee.ktjni.util.assertRuns
 import io.github.fletchmckee.ktjni.util.assertVariantHeaders
 import io.github.fletchmckee.ktjni.util.assertVariantOutcome
+import io.github.fletchmckee.ktjni.util.taskOutcomes
 import io.github.fletchmckee.ktjni.util.writeAndroidManifestFile
 import io.github.fletchmckee.ktjni.util.writeCommonSettingsFile
 import io.github.fletchmckee.ktjni.util.writeJavaExampleFile
@@ -48,15 +52,15 @@ class AndroidPluginTest {
       projectDir = projectRoot,
       compatibleMatrix = Latest,
       assert = { firstRun, secondRun ->
+        assertThat(firstRun)
         firstRun
-          .assertVariantOutcome<Kotlin>(TaskOutcome.SUCCESS, "debug", "release")
-          .assertVariantOutcome<Java>(TaskOutcome.NO_SOURCE, "debug", "release")
-          .assertVariantOutcome<Kotlin>(TaskOutcome.NO_SOURCE, "debugAndroidTest", "debugUnitTest")
+          .assertVariantOutcome(TaskOutcome.SUCCESS, "debug", "release")
+          .assertVariantOutcome(TaskOutcome.NO_SOURCE, "debugAndroidTest", "debugUnitTest")
           // Both test release variants are null after AGP 9.
-          .assertVariantOutcome<Kotlin>(null, "releaseAndroidTest", "releaseUnitTest")
+          .assertVariantOutcome(null, "releaseAndroidTest", "releaseUnitTest")
         secondRun
-          .assertVariantOutcome<Kotlin>(TaskOutcome.UP_TO_DATE, "debug", "release")
-        assertVariantHeaders<Kotlin>(projectRoot, "debug", "release")
+          .assertVariantOutcome(TaskOutcome.UP_TO_DATE, "debug", "release")
+        assertVariantHeaders(projectRoot, "debug", "release")
       },
     )
   }
@@ -80,14 +84,13 @@ class AndroidPluginTest {
       compatibleMatrix = Latest,
       assert = { firstRun, secondRun ->
         firstRun
-          .assertVariantOutcome<Kotlin>(TaskOutcome.SUCCESS, "debug", "release")
-          .assertVariantOutcome<Java>(TaskOutcome.NO_SOURCE, "debug", "release")
-          .assertVariantOutcome<Kotlin>(TaskOutcome.NO_SOURCE, "debugAndroidTest", "debugUnitTest")
+          .assertVariantOutcome(TaskOutcome.SUCCESS, "debug", "release")
+          .assertVariantOutcome(TaskOutcome.NO_SOURCE, "debugAndroidTest", "debugUnitTest")
           // Both test release variants are null after AGP 9.
-          .assertVariantOutcome<Kotlin>(null, "releaseAndroidTest", "releaseUnitTest")
+          .assertVariantOutcome(null, "releaseAndroidTest", "releaseUnitTest")
         secondRun
-          .assertVariantOutcome<Kotlin>(TaskOutcome.UP_TO_DATE, "debug", "release")
-        assertVariantHeaders<Kotlin>(projectRoot, "debug", "release")
+          .assertVariantOutcome(TaskOutcome.UP_TO_DATE, "debug", "release")
+        assertVariantHeaders(projectRoot, "debug", "release")
       },
     )
   }
@@ -113,13 +116,12 @@ class AndroidPluginTest {
       compatibleMatrix = Min,
       assert = { firstRun, secondRun ->
         firstRun
-          .assertVariantOutcome<Kotlin>(TaskOutcome.SUCCESS, "debug", "release")
-          .assertVariantOutcome<Java>(TaskOutcome.NO_SOURCE, "debug", "release")
-          .assertVariantOutcome<Kotlin>(TaskOutcome.NO_SOURCE, "debugAndroidTest", "debugUnitTest", "releaseUnitTest")
-          .assertVariantOutcome<Kotlin>(null, "releaseAndroidTest")
+          .assertVariantOutcome(TaskOutcome.SUCCESS, "debug", "release")
+          .assertVariantOutcome(TaskOutcome.NO_SOURCE, "debugAndroidTest", "debugUnitTest", "releaseUnitTest")
+          .assertVariantOutcome(null, "releaseAndroidTest")
         secondRun
-          .assertVariantOutcome<Kotlin>(TaskOutcome.UP_TO_DATE, "debug", "release")
-        assertVariantHeaders<Kotlin>(projectRoot, "debug", "release")
+          .assertVariantOutcome(TaskOutcome.UP_TO_DATE, "debug", "release")
+        assertVariantHeaders(projectRoot, "debug", "release")
       },
     )
   }
@@ -142,46 +144,13 @@ class AndroidPluginTest {
       compatibleMatrix = Latest,
       assert = { firstRun, secondRun ->
         firstRun
-          .assertVariantOutcome<Kotlin>(TaskOutcome.SUCCESS, "debug", "release")
-          .assertVariantOutcome<Java>(TaskOutcome.NO_SOURCE, "debug", "release")
-          .assertVariantOutcome<Kotlin>(TaskOutcome.NO_SOURCE, "debugAndroidTest", "debugUnitTest")
+          .assertVariantOutcome(TaskOutcome.SUCCESS, "debug", "release")
+          .assertVariantOutcome(TaskOutcome.NO_SOURCE, "debugAndroidTest", "debugUnitTest")
           // Both test release variants are null after AGP 9.
-          .assertVariantOutcome<Kotlin>(null, "releaseAndroidTest", "releaseUnitTest")
+          .assertVariantOutcome(null, "releaseAndroidTest", "releaseUnitTest")
         secondRun
-          .assertVariantOutcome<Kotlin>(TaskOutcome.UP_TO_DATE, "debug", "release")
-        assertVariantHeaders<Kotlin>(projectRoot, "debug", "release")
-      },
-    )
-  }
-
-  @Test fun `latest - generates headers for Kotlin Android Application`() {
-    projectRoot.writeKotlinExampleFile()
-    projectRoot.writeAndroidManifestFile()
-
-    buildProject(buildFile) {
-      plugins {
-        kotlinAndroid(Latest.kgp)
-        androidApplication(Latest.agp)
-      }
-
-      android()
-      kotlin()
-    }
-
-    assertRuns(
-      projectDir = projectRoot,
-      builtInKotlin = false,
-      compatibleMatrix = Latest,
-      assert = { firstRun, secondRun ->
-        firstRun
-          .assertVariantOutcome<Kotlin>(TaskOutcome.SUCCESS, "debug", "release")
-          .assertVariantOutcome<Java>(TaskOutcome.NO_SOURCE, "debug", "release")
-          .assertVariantOutcome<Kotlin>(TaskOutcome.NO_SOURCE, "debugAndroidTest", "debugUnitTest")
-          // Both test release variants are null after AGP 9.
-          .assertVariantOutcome<Kotlin>(null, "releaseAndroidTest", "releaseUnitTest")
-        secondRun
-          .assertVariantOutcome<Kotlin>(TaskOutcome.UP_TO_DATE, "debug", "release")
-        assertVariantHeaders<Kotlin>(projectRoot, "debug", "release")
+          .assertVariantOutcome(TaskOutcome.UP_TO_DATE, "debug", "release")
+        assertVariantHeaders(projectRoot, "debug", "release")
       },
     )
   }
@@ -208,13 +177,43 @@ class AndroidPluginTest {
       compatibleMatrix = Min,
       assert = { firstRun, secondRun ->
         firstRun
-          .assertVariantOutcome<Kotlin>(TaskOutcome.SUCCESS, "debug", "release")
-          .assertVariantOutcome<Java>(TaskOutcome.NO_SOURCE, "debug", "release")
-          .assertVariantOutcome<Kotlin>(TaskOutcome.NO_SOURCE, "debugAndroidTest", "debugUnitTest", "releaseUnitTest")
-          .assertVariantOutcome<Kotlin>(null, "releaseAndroidTest")
+          .assertVariantOutcome(TaskOutcome.SUCCESS, "debug", "release")
+          .assertVariantOutcome(TaskOutcome.NO_SOURCE, "debugAndroidTest", "debugUnitTest", "releaseUnitTest")
+          .assertVariantOutcome(null, "releaseAndroidTest")
         secondRun
-          .assertVariantOutcome<Kotlin>(TaskOutcome.UP_TO_DATE, "debug", "release")
-        assertVariantHeaders<Kotlin>(projectRoot, "debug", "release")
+          .assertVariantOutcome(TaskOutcome.UP_TO_DATE, "debug", "release")
+        assertVariantHeaders(projectRoot, "debug", "release")
+      },
+    )
+  }
+
+  @Test fun `latest - generates headers for Kotlin Android Application`() {
+    projectRoot.writeKotlinExampleFile()
+    projectRoot.writeAndroidManifestFile()
+
+    buildProject(buildFile) {
+      plugins {
+        kotlinAndroid(Latest.kgp)
+        androidApplication(Latest.agp)
+      }
+
+      android()
+      kotlin()
+    }
+
+    assertRuns(
+      projectDir = projectRoot,
+      builtInKotlin = false,
+      compatibleMatrix = Latest,
+      assert = { firstRun, secondRun ->
+        firstRun
+          .assertVariantOutcome(TaskOutcome.SUCCESS, "debug", "release")
+          .assertVariantOutcome(TaskOutcome.NO_SOURCE, "debugAndroidTest", "debugUnitTest")
+          // Both test release variants are null after AGP 9.
+          .assertVariantOutcome(null, "releaseAndroidTest", "releaseUnitTest")
+        secondRun
+          .assertVariantOutcome(TaskOutcome.UP_TO_DATE, "debug", "release")
+        assertVariantHeaders(projectRoot, "debug", "release")
       },
     )
   }
@@ -237,13 +236,12 @@ class AndroidPluginTest {
       compatibleMatrix = Latest,
       assert = { firstRun, secondRun ->
         firstRun
-          .assertVariantOutcome<Java>(TaskOutcome.SUCCESS, "debug", "release")
-          .assertVariantOutcome<Kotlin>(TaskOutcome.NO_SOURCE, "debug", "release")
-          .assertVariantOutcome<Java>(TaskOutcome.NO_SOURCE, "debugAndroidTest", "debugUnitTest")
-          .assertVariantOutcome<Java>(null, "releaseUnitTest", "releaseAndroidTest")
+          .assertVariantOutcome(TaskOutcome.SUCCESS, "debug", "release")
+          .assertVariantOutcome(TaskOutcome.NO_SOURCE, "debugAndroidTest", "debugUnitTest")
+          .assertVariantOutcome(null, "releaseUnitTest", "releaseAndroidTest")
         secondRun
-          .assertVariantOutcome<Java>(TaskOutcome.UP_TO_DATE, "debug", "release")
-        assertVariantHeaders<Java>(projectRoot, "debug", "release")
+          .assertVariantOutcome(TaskOutcome.UP_TO_DATE, "debug", "release")
+        assertVariantHeaders(projectRoot, "debug", "release")
       },
     )
   }
@@ -268,14 +266,25 @@ class AndroidPluginTest {
       projectDir = projectRoot,
       compatibleMatrix = Min,
       assert = { firstRun, secondRun ->
-        firstRun
-          .assertVariantOutcome<Java>(TaskOutcome.SUCCESS, "debug", "release")
-          .assertVariantOutcome<Kotlin>(null, "debug", "release")
-          .assertVariantOutcome<Java>(TaskOutcome.NO_SOURCE, "debugAndroidTest", "debugUnitTest", "releaseUnitTest")
-          .assertVariantOutcome<Java>(null, "releaseAndroidTest")
-        secondRun
-          .assertVariantOutcome<Java>(TaskOutcome.UP_TO_DATE, "debug", "release")
-        assertVariantHeaders<Java>(projectRoot, "debug", "release")
+        assertThat(firstRun).all {
+          taskOutcomes("generateDebugJniHeaders", "generateReleaseJniHeaders")
+            .containsOnly(TaskOutcome.SUCCESS)
+
+          taskOutcomes(
+            "generateDebugAndroidTestJniHeaders",
+            "generateDebugUnitTestJniHeaders",
+            "generateReleaseUnitTestJniHeaders",
+          ).containsOnly(TaskOutcome.NO_SOURCE)
+
+          taskOutcomes("generateReleaseAndroidTestJniHeaders")
+            .single()
+            .isNull()
+        }
+
+        assertThat(secondRun)
+          .taskOutcomes("generateDebugJniHeaders", "generateReleaseJniHeaders")
+          .containsOnly(TaskOutcome.UP_TO_DATE)
+        assertVariantHeaders(projectRoot, "debug", "release")
       },
     )
   }

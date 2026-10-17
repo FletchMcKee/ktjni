@@ -5,9 +5,6 @@ package io.github.fletchmckee.ktjni
 import io.github.fletchmckee.ktjni.dsl.buildProject
 import io.github.fletchmckee.ktjni.util.CompatibleMatrix.Latest
 import io.github.fletchmckee.ktjni.util.CompatibleMatrix.Min
-import io.github.fletchmckee.ktjni.util.Language.Java
-import io.github.fletchmckee.ktjni.util.Language.Kotlin
-import io.github.fletchmckee.ktjni.util.Language.Scala
 import io.github.fletchmckee.ktjni.util.assertRuns
 import io.github.fletchmckee.ktjni.util.assertVariantHeaders
 import io.github.fletchmckee.ktjni.util.assertVariantOutcome
@@ -50,12 +47,9 @@ class JvmPluginTest {
       compatibleMatrix = Latest,
       android = false,
     ) { firstRun, secondRun ->
-      firstRun
-        .assertVariantOutcome<Kotlin>(TaskOutcome.SUCCESS, "main")
-        .assertVariantOutcome<Java>(TaskOutcome.NO_SOURCE, "main")
-      secondRun
-        .assertVariantOutcome<Kotlin>(TaskOutcome.UP_TO_DATE, "main")
-      assertVariantHeaders<Kotlin>(projectRoot, "main")
+      firstRun.assertVariantOutcome(TaskOutcome.SUCCESS, "main")
+      secondRun.assertVariantOutcome(TaskOutcome.UP_TO_DATE, "main")
+      assertVariantHeaders(projectRoot, "main")
     }
   }
 
@@ -77,11 +71,10 @@ class JvmPluginTest {
       android = false,
     ) { firstRun, secondRun ->
       firstRun
-        .assertVariantOutcome<Kotlin>(TaskOutcome.SUCCESS, "main")
-        .assertVariantOutcome<Java>(TaskOutcome.NO_SOURCE, "main")
+        .assertVariantOutcome(TaskOutcome.SUCCESS, "main")
       secondRun
-        .assertVariantOutcome<Kotlin>(TaskOutcome.UP_TO_DATE, "main")
-      assertVariantHeaders<Kotlin>(projectRoot, "main")
+        .assertVariantOutcome(TaskOutcome.UP_TO_DATE, "main")
+      assertVariantHeaders(projectRoot, "main")
     }
   }
 
@@ -102,11 +95,10 @@ class JvmPluginTest {
       android = false,
     ) { firstRun, secondRun ->
       firstRun
-        .assertVariantOutcome<Java>(TaskOutcome.SUCCESS, "main")
-        .assertVariantOutcome<Kotlin>(null, "main")
+        .assertVariantOutcome(TaskOutcome.SUCCESS, "main")
       secondRun
-        .assertVariantOutcome<Java>(TaskOutcome.UP_TO_DATE, "main")
-      assertVariantHeaders<Java>(projectRoot, "main")
+        .assertVariantOutcome(TaskOutcome.UP_TO_DATE, "main")
+      assertVariantHeaders(projectRoot, "main")
     }
   }
 
@@ -127,11 +119,10 @@ class JvmPluginTest {
       android = false,
     ) { firstRun, secondRun ->
       firstRun
-        .assertVariantOutcome<Java>(TaskOutcome.SUCCESS, "main")
-        .assertVariantOutcome<Kotlin>(null, "main")
+        .assertVariantOutcome(TaskOutcome.SUCCESS, "main")
       secondRun
-        .assertVariantOutcome<Java>(TaskOutcome.UP_TO_DATE, "main")
-      assertVariantHeaders<Java>(projectRoot, "main")
+        .assertVariantOutcome(TaskOutcome.UP_TO_DATE, "main")
+      assertVariantHeaders(projectRoot, "main")
     }
   }
 
@@ -156,11 +147,10 @@ class JvmPluginTest {
       android = false,
     ) { firstRun, secondRun ->
       firstRun
-        .assertVariantOutcome<Scala>(TaskOutcome.SUCCESS, "main")
-        .assertVariantOutcome<Java>(TaskOutcome.NO_SOURCE, "main")
+        .assertVariantOutcome(TaskOutcome.SUCCESS, "main")
       secondRun
-        .assertVariantOutcome<Scala>(TaskOutcome.UP_TO_DATE, "main")
-      assertVariantHeaders<Scala>(projectRoot, "main")
+        .assertVariantOutcome(TaskOutcome.UP_TO_DATE, "main")
+      assertVariantHeaders(projectRoot, "main")
     }
   }
 
@@ -183,11 +173,10 @@ class JvmPluginTest {
       android = false,
     ) { firstRun, secondRun ->
       firstRun
-        .assertVariantOutcome<Scala>(TaskOutcome.SUCCESS, "main")
-        .assertVariantOutcome<Java>(TaskOutcome.NO_SOURCE, "main")
+        .assertVariantOutcome(TaskOutcome.SUCCESS, "main")
       secondRun
-        .assertVariantOutcome<Scala>(TaskOutcome.UP_TO_DATE, "main")
-      assertVariantHeaders<Scala>(projectRoot, "main")
+        .assertVariantOutcome(TaskOutcome.UP_TO_DATE, "main")
+      assertVariantHeaders(projectRoot, "main")
     }
   }
 }

@@ -10,12 +10,12 @@ import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.FieldNode
 import org.objectweb.asm.tree.MethodNode
 
-/**
+/*
  * Windows encodes longs as "i64" instead of "LL"
  */
 internal val isWindows: Boolean = System.getProperty("os.name").startsWith("Windows")
 
-/**
+/*
  * Heuristic for detecting local/anonymous classes (JNI headers should not be generated for these classes).
  *
  * This checks whether the class node has a non-null `outerMethod`, which is commonly true or local classes (classes defined inside a
@@ -26,35 +26,35 @@ internal val isWindows: Boolean = System.getProperty("os.name").startsWith("Wind
  */
 internal val ClassNode.isLocal: Boolean get() = outerMethod != null
 
-/**
+/*
  * When this is true and [isSynthetic] is false, we're going to generate headers.
  */
 internal val MethodNode.isNative: Boolean get() = (access and Opcodes.ACC_NATIVE) != 0
 
-/**
+/*
  * Determines if a method is synthetic (compiler-generated).
  * Synthetic methods do not need JNI headers as they are not explicitly declared in the source code.
  */
 internal val MethodNode.isSynthetic: Boolean get() = (access and Opcodes.ACC_SYNTHETIC) != 0
 
-/**
+/*
  * When [isLocal] is false and this is true, we're going to generate headers.
  */
 internal val MethodNode.needsHeader: Boolean get() = isNative && !isSynthetic
 
-/**
+/*
  * Checks if a method is declared as static.
  * Static methods have different JNI function signatures than instance methods (jclass instead of jobject).
  */
 internal val MethodNode.isStatic: Boolean get() = (access and Opcodes.ACC_STATIC) != 0
 
-/**
+/*
  * Static final fields are added to headers with native methods.
  */
 internal val FieldNode.isStaticFinal: Boolean
   get() = (access and (Opcodes.ACC_STATIC or Opcodes.ACC_FINAL)) == (Opcodes.ACC_STATIC or Opcodes.ACC_FINAL)
 
-/**
+/*
  * Maps a JVM type (ASM's [Type]) to its corresponding JNI C type.
  *
  * This is used when generating method parameter and return types for `JNIEXPORT` function
@@ -114,7 +114,7 @@ internal val Type.jniType: String get() = when (this.sort) {
   else -> throw IllegalArgumentException("Unknown type: $this")
 }
 
-/**
+/*
  * Converts a static final field's value into a valid C preprocessor constant
  * according to JNI header rules.
  *
@@ -178,7 +178,7 @@ internal val FieldNode.jniConstant: String?
 
 internal inline fun Char.isAsciiAlphanumeric(): Boolean = this.code <= 0x7f && this.isLetterOrDigit()
 
-/**
+/*
  * Simple helper extension that makes it easier to read when dealing with nulls.
  */
 internal inline fun Int?.orZero(): Int = this ?: 0

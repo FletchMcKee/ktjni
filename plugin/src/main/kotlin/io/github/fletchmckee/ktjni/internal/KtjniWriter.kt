@@ -1,7 +1,5 @@
 // Copyright 2025, Colin McKee
 // SPDX-License-Identifier: Apache-2.0
-@file:Suppress("NOTHING_TO_INLINE")
-
 package io.github.fletchmckee.ktjni.internal
 
 import io.github.fletchmckee.ktjni.util.isAsciiAlphanumeric
@@ -18,7 +16,7 @@ import org.objectweb.asm.Type
 import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.MethodNode
 
-/**
+/*
  * The javac
  * [JNIWriter](https://github.com/openjdk/jdk/blob/master/src/jdk.compiler/share/classes/com/sun/tools/javac/jvm/JNIWriter.java#L223-L226)
  * class split these up into four separate methods, but it's simplified here as everything before statics and native methods.
@@ -36,7 +34,7 @@ internal fun PrintWriter.writePrologue(cName: String) {
   println() // Makes it easier to read.
 }
 
-/**
+/*
  * [JNIWriter](https://github.com/openjdk/jdk/blob/master/src/jdk.compiler/share/classes/com/sun/tools/javac/jvm/JNIWriter.java#L231-L232)
  */
 internal fun PrintWriter.writeEpilogue() {
@@ -46,7 +44,7 @@ internal fun PrintWriter.writeEpilogue() {
   println("#endif")
 }
 
-/**
+/*
  * Writes #define directives for static final constants in a class to the JNI header.
  *
  * This function generates C preprocessor macros for all static final constants
@@ -83,7 +81,7 @@ internal fun PrintWriter.writeStatics(classNode: ClassNode, cName: String, srcDi
   }
 }
 
-/**
+/*
  * Writes JNI function declarations for native methods to the JNI header.
  *
  * This function generates C/C++ function declarations following the JNI convention:
@@ -141,7 +139,7 @@ internal fun PrintWriter.writeNativeMethods(
   }
 }
 
-/**
+/*
  * Converts a Java class name to its JNI representation.
  *
  * This function follows the JNI class name mangling rules for header files:
@@ -166,7 +164,7 @@ internal fun String.toMangledJniName(): String = buildString(100) {
   }
 }
 
-/**
+/*
  * Converts a string to a JNI identifier according to JNI method naming rules.
  *
  * Used primarily for method names in JNI function declarations:
@@ -196,7 +194,7 @@ internal fun String.toJniIdentifier(): String = buildString(100) {
   }
 }
 
-/**
+/*
  * Converts a field name to its JNI field stub representation.
  *
  * Used for field identifiers in JNI #define directives:
@@ -235,7 +233,7 @@ internal fun MethodNode.toMangledJniMethod(classFlatName: String, isOverloaded: 
   }
 }
 
-internal inline fun Char.toJniSymbol(): String {
+internal fun Char.toJniSymbol(): String {
   val hexString = Integer.toHexString(this.code)
   val zerosToPad = 5 - hexString.length
   val result = CharArray(6)
@@ -249,17 +247,11 @@ internal inline fun Char.toJniSymbol(): String {
   return String(result)
 }
 
-// This method leaves a lot to be desired and there are likely much better alternatives.
-// It's also the likely culprit for issues that result from this plugin, at least issues related to the contents of the header files.
 private fun buildClassHierarchy(classNode: ClassNode, srcDir: File): List<ClassNode> {
   val hierarchy = mutableListOf<ClassNode>()
-  var currentNode = classNode
-
   // Add the current class first so that it is last when the list is reversed.
-  hierarchy.add(currentNode)
+  hierarchy.add(classNode)
   for (innerClass in classNode.innerClasses) {
-    // We might incorrectly load unrelated classes that happen to be referenced in the innerClasses list, potentially including constants
-    // from classes that have no relationship to our target class, so verify the names match.
     if (innerClass.name == classNode.name && innerClass.outerName != null) {
       val outerClassName = innerClass.outerName
       val outerClassFile = srcDir.resolve("${outerClassName.replace('/', File.separatorChar)}.class")

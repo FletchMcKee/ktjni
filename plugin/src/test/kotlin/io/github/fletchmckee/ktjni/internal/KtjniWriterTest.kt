@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.fletchmckee.ktjni.internal
 
-import com.google.common.truth.Truth.assertThat
+import assertk.assertThat
+import assertk.assertions.isEqualTo
 import java.io.File
 import java.io.FileOutputStream
 import java.io.PrintWriter
