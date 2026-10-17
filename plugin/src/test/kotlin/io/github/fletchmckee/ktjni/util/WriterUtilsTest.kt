@@ -2,7 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.fletchmckee.ktjni.util
 
-import com.google.common.truth.Truth.assertThat
+import assertk.assertThat
+import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
+import assertk.assertions.isNull
+import assertk.assertions.isTrue
 import org.junit.jupiter.api.Test
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.FieldNode

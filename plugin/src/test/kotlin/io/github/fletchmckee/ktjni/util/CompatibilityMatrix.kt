@@ -24,9 +24,3 @@ enum class CompatibleMatrix(
     scala = ScalaVersion,
   ),
 }
-
-sealed interface Language {
-  data object Kotlin : Language
-  data object Java : Language
-  data object Scala : Language
-}

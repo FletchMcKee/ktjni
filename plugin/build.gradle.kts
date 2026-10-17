@@ -18,7 +18,12 @@ kotlin {
 
   compilerOptions {
     jvmTarget.set(JvmTarget.JVM_11)
-    freeCompilerArgs.add("-Xjdk-release=11")
+    freeCompilerArgs.addAll(
+      listOf(
+        "-Xjdk-release=11",
+        "-Xcontext-parameters",
+      ),
+    )
   }
 }
 
@@ -91,7 +96,7 @@ dependencies {
   testImplementation(libs.junit.jupiter)
   testImplementation(libs.junit.jupiter.params)
   testImplementation(libs.kotlin.test.junit5)
-  testImplementation(libs.google.truth)
+  testImplementation(libs.assertk)
   testImplementation(gradleTestKit())
 
   testRuntimeOnly(libs.junit.platform.launcher)

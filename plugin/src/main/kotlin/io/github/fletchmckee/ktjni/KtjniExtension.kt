@@ -17,7 +17,7 @@ public interface KtjniExtension {
   /**
    * Base output directory for generated JNI headers.
    *
-   * Files are placed under `{outputDir}/{sourceType}/{sourceName}` for cache correctness.
+   * Files are placed under `{outputDir}/{sourceSetName}` for cache correctness.
    *
    * Default: `{project.projectDir}/build/generated/ktjni`
    */
