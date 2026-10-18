@@ -1,6 +1,6 @@
 [versions]
 agp = "9.4.1"
-asm = "9.11"
+asm = "9.11.1"
 assertk = "0.28.1"
 compileSdk = "37"
 googleTruth = "1.4.5"
