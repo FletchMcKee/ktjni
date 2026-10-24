@@ -2,19 +2,22 @@
 agp = "9.4.1"
 asm = "9.11.1"
 assertk = "0.28.1"
+# Used in tests
+#noinspection UnusedVersionCatalogEntry
 compileSdk = "37"
-googleTruth = "1.4.5"
-junit = "4.13.2"
-junitExt = "1.3.0"
 junitJupiter = "6.1.3"
 kotlin = "2.4.21"
 ktjni = "1.0.0-SNAPSHOT"
 ktlint = "1.6.0"
 mavenPublish = "0.37.0"
+# Used in tests
+#noinspection UnusedVersionCatalogEntry
 minSdk = "26"
+# Used in tests
+#noinspection UnusedVersionCatalogEntry
 scala = "3.8.4"
+shadow = "9.6.1"
 spotless = "8.10.4"
-targetSdk = "36"
 
 [libraries]
 asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
@@ -33,6 +36,7 @@ ktlint-core = { module = "com.pinterest.ktlint:ktlint-core", version.ref = "ktli
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 android-api-gradlePlugin = { module = "com.android.tools.build:gradle-api", version.ref = "agp" }
 spotless-gradlePlugin = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
+shadow-gradlePlugin = { module = "com.gradleup.shadow:shadow-gradle-plugin", version.ref = "shadow" }
 
 [plugins]
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
@@ -44,7 +48,9 @@ ktjni = { id = "io.github.fletchmckee.ktjni", version.ref = "ktjni" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "mavenPublish" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 
 # Custom plugins
 ktjni-root = { id = "io.github.fletchmckee.ktjni.root" }
 ktjni-spotless = { id = "io.github.fletchmckee.ktjni.spotless" }
+ktjni-shadow = { id = "io.github.fletchmckee.ktjni.shadow" }

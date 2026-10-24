@@ -6,5 +6,6 @@ plugins {
   alias(libs.plugins.kotlin.compose) apply false
   alias(libs.plugins.spotless) apply false
   alias(libs.plugins.binary.compatibility.validator) apply false
+  alias(libs.plugins.shadow) apply false
   alias(libs.plugins.ktjni.root)
 }

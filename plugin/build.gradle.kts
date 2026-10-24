@@ -1,5 +1,6 @@
 // Copyright 2025, Colin McKee
 // SPDX-License-Identifier: Apache-2.0
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.vanniktech.maven.publish.GradlePlugin
 import com.vanniktech.maven.publish.JavadocJar
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
@@ -11,6 +12,7 @@ plugins {
   alias(libs.plugins.ktjni.spotless)
   alias(libs.plugins.binary.compatibility.validator)
   alias(libs.plugins.maven.publish)
+  alias(libs.plugins.ktjni.shadow)
 }
 
 kotlin {
@@ -33,6 +35,11 @@ tasks.withType<JavaCompile>().configureEach {
 
 tasks.withType<ValidatePlugins>().configureEach {
   enableStricterValidation = true
+}
+
+tasks.named<ShadowJar>("shadowJar") {
+  description = "Relocate ASM dependencies"
+  relocate("org.objectweb.asm", "io.github.fletchmckee.ktjni.org.objectweb.asm")
 }
 
 val localRepo: Provider<Directory> = layout.buildDirectory.dir("local-repo")
@@ -84,9 +91,8 @@ configurations {
 }
 
 dependencies {
-  // TODO: Shadow these
-  implementation(libs.asm)
-  implementation(libs.asm.tree)
+  embedded(libs.asm)
+  embedded(libs.asm.tree)
 
   compileOnly(libs.kotlin.gradlePlugin)
   compileOnly(libs.android.api.gradlePlugin)
