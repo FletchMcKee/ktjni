@@ -91,9 +91,8 @@ configurations {
 }
 
 dependencies {
-  // TODO: Shadow these
-  implementation(libs.asm)
-  implementation(libs.asm.tree)
+  embedded(libs.asm)
+  embedded(libs.asm.tree)
 
   compileOnly(libs.kotlin.gradlePlugin)
   compileOnly(libs.android.api.gradlePlugin)
