@@ -8,6 +8,7 @@ dependencies {
   compileOnly(libs.android.api.gradlePlugin)
   compileOnly(libs.kotlin.gradlePlugin)
   compileOnly(libs.spotless.gradlePlugin)
+  compileOnly(libs.shadow.gradlePlugin)
 }
 
 tasks.validatePlugins {
@@ -25,6 +26,11 @@ gradlePlugin {
     register("spotless") {
       id = libs.plugins.ktjni.spotless.get().pluginId
       implementationClass = "SpotlessConventionPlugin"
+    }
+
+    register("shadow") {
+      id = libs.plugins.ktjni.shadow.get().pluginId
+      implementationClass = "ShadowConventionPlugin"
     }
   }
 }
