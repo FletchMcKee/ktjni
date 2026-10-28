@@ -1,5 +1,5 @@
 [versions]
-agp = "9.4.1"
+agp = "9.5.0"
 asm = "9.11.1"
 assertk = "0.28.1"
 # Used in tests
