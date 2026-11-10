@@ -8,8 +8,15 @@ enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
 pluginManagement {
   includeBuild("build-logic")
   repositories {
-    google()
     mavenCentral()
+    google {
+      @Suppress("UnstableApiUsage")
+      mavenContent {
+        includeGroupAndSubgroups("androidx")
+        includeGroupAndSubgroups("com.android")
+        includeGroupAndSubgroups("com.google")
+      }
+    }
     gradlePluginPortal()
   }
 }
@@ -18,8 +25,14 @@ pluginManagement {
 dependencyResolutionManagement {
   repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
   repositories {
-    google()
     mavenCentral()
+    google {
+      mavenContent {
+        includeGroupAndSubgroups("androidx")
+        includeGroupAndSubgroups("com.android")
+        includeGroupAndSubgroups("com.google")
+      }
+    }
   }
 }
 

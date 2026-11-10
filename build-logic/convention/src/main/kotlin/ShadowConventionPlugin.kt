@@ -3,9 +3,11 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.attributes.Bundling
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.SourceSet
 import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.register
 
 @Suppress("Unused", "UnstableApiUsage")
@@ -25,13 +27,15 @@ class ShadowConventionPlugin : Plugin<Project> {
       val shadowJar = tasks.register<ShadowJar>("shadowJar") {
         description = "Relocates embedded dependencies."
         from(main.output)
-        configurations.add(embeddedClasspath)
-      }
+        exclude("module-info.class")
 
-      tasks.named(main.jarTaskName) { enabled = false }
+        configurations.add(embeddedClasspath)
+        destinationDirectory.set(layout.buildDirectory.dir("shadow"))
+      }
 
       listOf(main.apiElementsConfigurationName, main.runtimeElementsConfigurationName).forEach { name ->
         configurations.named(name) {
+          attributes { attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.SHADOWED)) }
           outgoing {
             artifacts.clear()
             artifact(shadowJar)
