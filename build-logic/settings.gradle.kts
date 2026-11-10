@@ -2,22 +2,23 @@ rootProject.name = "build-logic"
 
 pluginManagement {
   repositories {
+    mavenCentral()
     gradlePluginPortal()
-    google()
   }
 }
 
 @Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
+  repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
   repositories {
+    mavenCentral()
     google {
-      content {
-        includeGroupByRegex("com\\.android.*")
-        includeGroupByRegex("com\\.google.*")
-        includeGroupByRegex("androidx.*")
+      mavenContent {
+        includeGroupAndSubgroups("androidx")
+        includeGroupAndSubgroups("com.android")
+        includeGroupAndSubgroups("com.google")
       }
     }
-    mavenCentral()
   }
 
   versionCatalogs {

@@ -184,7 +184,7 @@ private fun createTestRunner(
     }
     withArguments(*arrayOf("generateJniHeaders") + tasks)
     gradleVersion?.let { withGradleVersion(it) }
-    withDebug(true)
+    withDebug(false)
   }.build()
 
 private fun assertHeaders(parent: File, path: String) {
