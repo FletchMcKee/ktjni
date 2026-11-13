@@ -113,7 +113,7 @@ internal fun PrintWriter.writeNativeMethods(
   overloadedMethodMap: Map<String, Int>,
 ) {
   for (method in nativeMethods) {
-    val isOverloaded = overloadedMethodMap[method.name].orZero() > 1
+    val isOverloaded = overloadedMethodMap[method.name].orZero > 1
     // Method comment block
     println("/*")
     println(" * Class:     $cName")
