@@ -11,16 +11,13 @@ on:
 jobs:
   build:
     name: "build"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
 
     timeout-minutes: 60
 
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-
-      - name: Copy CI gradle.properties
-        run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
 
       - name: Set up Java version
         uses: actions/setup-java@v6
@@ -35,9 +32,6 @@ jobs:
           build-scan-publish: true
           build-scan-terms-of-use-url: "https://gradle.com/terms-of-service"
           build-scan-terms-of-use-agree: "yes"
-
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
 
       - name: Build
         run: ./gradlew build

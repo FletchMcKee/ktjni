@@ -1,22 +1,25 @@
 // Copyright 2025, Colin McKee
 // SPDX-License-Identifier: Apache-2.0
+@file:OptIn(ExperimentalAbiValidation::class)
+
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.vanniktech.maven.publish.GradlePlugin
 import com.vanniktech.maven.publish.JavadocJar
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
 
 plugins {
   `kotlin-dsl`
   alias(libs.plugins.ktjni.spotless)
-  alias(libs.plugins.binary.compatibility.validator)
   alias(libs.plugins.maven.publish)
   alias(libs.plugins.ktjni.shadow)
 }
 
 kotlin {
   explicitApi()
+  abiValidation()
 
   compilerOptions {
     jvmTarget.set(JvmTarget.JVM_11)
@@ -96,8 +99,6 @@ dependencies {
 
   compileOnly(libs.kotlin.gradlePlugin)
   compileOnly(libs.android.api.gradlePlugin)
-  compileOnly(gradleApi())
-  compileOnly(localGroovy())
 
   testImplementation(libs.junit.jupiter)
   testImplementation(libs.junit.jupiter.params)
