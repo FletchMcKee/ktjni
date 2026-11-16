@@ -62,6 +62,15 @@ tasks.withType<Test>().configureEach {
     .withPathSensitivity(PathSensitivity.RELATIVE)
     .withPropertyName("localRepo")
 
+  inputs
+    .files(
+      layout.projectDirectory.dir("src/test/fixtures").asFileTree.matching {
+        exclude("**/build/**", "**/.gradle/**", "**/.kotlin/**", "**/local.properties")
+      },
+    )
+    .withPathSensitivity(PathSensitivity.RELATIVE)
+    .withPropertyName("fixtures")
+
   systemProperties["ktjniVersion"] = providers.gradleProperty("VERSION_NAME").get()
   systemProperties["agpVersion"] = libs.versions.agp.get()
   systemProperties["kgpVersion"] = libs.versions.kotlin.get()
@@ -128,7 +137,5 @@ publishing {
 }
 
 mavenPublishing {
-  configure(
-    GradlePlugin(javadocJar = JavadocJar.Javadoc()),
-  )
+  configure(GradlePlugin(javadocJar = JavadocJar.Javadoc()))
 }

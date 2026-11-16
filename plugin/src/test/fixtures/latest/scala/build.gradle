@@ -1,0 +1,12 @@
+plugins {
+  id("scala")
+  alias(libs.plugins.ktjni.plugin)
+}
+
+scala {
+  scalaVersion = libs.versions.scala.get()
+}
+
+tasks.withType(ScalaCompile).configureEach {
+  scalaCompileOptions.additionalParameters.add("-Xunchecked-java-output-version:17")
+}

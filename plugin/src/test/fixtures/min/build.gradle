@@ -1,0 +1,7 @@
+plugins {
+  alias(libs.plugins.androidApplicationMin) apply false
+  alias(libs.plugins.androidLibraryMin) apply false
+  alias(libs.plugins.kotlinAndroid) apply false
+  alias(libs.plugins.kotlinJvmMin) apply false
+  alias(libs.plugins.ktjni.plugin) apply false
+}

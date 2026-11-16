@@ -1,0 +1,8 @@
+plugins {
+  id("scala")
+  alias(libs.plugins.ktjni.plugin)
+}
+
+scala {
+  scalaVersion = libs.versions.scalaMin.get()
+}

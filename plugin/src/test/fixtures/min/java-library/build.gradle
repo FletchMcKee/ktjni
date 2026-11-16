@@ -1,0 +1,9 @@
+plugins {
+  id("java")
+  alias(libs.plugins.ktjni.plugin)
+}
+
+java {
+  sourceCompatibility = JavaVersion.VERSION_11
+  targetCompatibility = JavaVersion.VERSION_11
+}
