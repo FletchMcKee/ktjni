@@ -20,6 +20,7 @@ minSdk = "26"
 # Used in tests
 #noinspection UnusedVersionCatalogEntry
 scala = "3.8.4"
+scalaMin = "2.13.12"
 shadow = "9.6.1"
 spotless = "8.11.0"
 
@@ -48,6 +49,8 @@ androidApplicationMin = { id = "com.android.application", version.ref = "agpMin"
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 androidLibraryMin = { id = "com.android.library", version.ref = "agpMin" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlinMin" }
+kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlinJvmMin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlinMin" }
 ktjni-plugin = { id = "io.github.fletchmckee.ktjni", version.ref = "ktjni" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "mavenPublish" }

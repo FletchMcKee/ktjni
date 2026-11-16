@@ -2,181 +2,144 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.fletchmckee.ktjni
 
-import io.github.fletchmckee.ktjni.dsl.buildProject
-import io.github.fletchmckee.ktjni.util.CompatibleMatrix.Latest
-import io.github.fletchmckee.ktjni.util.CompatibleMatrix.Min
-import io.github.fletchmckee.ktjni.util.assertRuns
-import io.github.fletchmckee.ktjni.util.assertVariantHeaders
-import io.github.fletchmckee.ktjni.util.assertVariantOutcome
-import io.github.fletchmckee.ktjni.util.writeCommonSettingsFile
-import io.github.fletchmckee.ktjni.util.writeJavaExampleFile
-import io.github.fletchmckee.ktjni.util.writeKotlinExampleFile
-import io.github.fletchmckee.ktjni.util.writeScalaExampleFile
+import assertk.assertThat
+import assertk.assertions.containsOnly
+import assertk.assertions.exists
+import assertk.assertions.hasText
+import io.github.fletchmckee.ktjni.util.ExpectedOutcome
+import io.github.fletchmckee.ktjni.util.taskOutcomes
 import java.io.File
+import kotlin.test.Test
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.io.TempDir
 
 class JvmPluginTest {
-  @TempDir lateinit var projectRoot: File
-  private lateinit var buildFile: File
+  @Test fun latestKotlinJvm() {
+    val projectDir = File(fixturesDir, "latest/kotlin-jvm")
+    assertThat(createCleanTestRunner(projectDir))
+      .taskOutcomes("generateJniHeaders", "generateMainJniHeaders")
+      .containsOnly(TaskOutcome.SUCCESS)
 
-  @BeforeEach fun setup() {
-    val localCacheDir = File(projectRoot, "local-cache")
-    buildFile = File(projectRoot, "build.gradle.kts")
-    val settingsFile = File(projectRoot, "settings.gradle.kts")
+    assertThat(createTestRunner(projectDir))
+      .taskOutcomes("generateJniHeaders", "generateMainJniHeaders")
+      .containsOnly(TaskOutcome.UP_TO_DATE)
 
-    settingsFile.writeCommonSettingsFile(localCacheDir)
+    assertThat(File(projectDir, "build/generated/ktjni/main"))
+      .transform { it.resolve("com_example_Example.h") }
+      .hasText(ExpectedOutcome)
   }
 
-  @Test fun `latest - generates headers for Kotlin JVM`() {
-    projectRoot.writeKotlinExampleFile()
+  @Test fun minKotlinJvm() {
+    val projectDir = File(fixturesDir, "min/kotlin-jvm")
+    assertThat(createCleanTestRunner(projectDir))
+      .taskOutcomes("generateJniHeaders", "generateMainJniHeaders")
+      .containsOnly(TaskOutcome.SUCCESS)
 
-    buildProject(buildFile) {
-      plugins {
-        kotlinJvm(Latest.kgp)
-      }
+    assertThat(createTestRunner(projectDir))
+      .taskOutcomes("generateJniHeaders", "generateMainJniHeaders")
+      .containsOnly(TaskOutcome.UP_TO_DATE)
 
-      kotlin()
-      java()
-    }
-
-    assertRuns(
-      projectDir = projectRoot,
-      compatibleMatrix = Latest,
-      android = false,
-    ) { firstRun, secondRun ->
-      firstRun.assertVariantOutcome(TaskOutcome.SUCCESS, "main")
-      secondRun.assertVariantOutcome(TaskOutcome.UP_TO_DATE, "main")
-      assertVariantHeaders(projectRoot, "main")
-    }
+    assertThat(File(projectDir, "build/generated/ktjni/main"))
+      .transform { it.resolve("com_example_Example.h") }
+      .hasText(ExpectedOutcome)
   }
 
-  @Test fun `min - generates headers for Kotlin JVM`() {
-    projectRoot.writeKotlinExampleFile()
+  @Test fun latestJavaLibrary() {
+    val projectDir = File(fixturesDir, "latest/java-library")
+    assertThat(createCleanTestRunner(projectDir))
+      .taskOutcomes("generateJniHeaders", "generateMainJniHeaders")
+      .containsOnly(TaskOutcome.SUCCESS)
 
-    buildProject(buildFile) {
-      plugins {
-        kotlinJvm(Min.kgp)
-      }
+    assertThat(createTestRunner(projectDir))
+      .taskOutcomes("generateJniHeaders", "generateMainJniHeaders")
+      .containsOnly(TaskOutcome.UP_TO_DATE)
 
-      kotlin()
-      java()
-    }
-
-    assertRuns(
-      projectDir = projectRoot,
-      compatibleMatrix = Min,
-      android = false,
-    ) { firstRun, secondRun ->
-      firstRun
-        .assertVariantOutcome(TaskOutcome.SUCCESS, "main")
-      secondRun
-        .assertVariantOutcome(TaskOutcome.UP_TO_DATE, "main")
-      assertVariantHeaders(projectRoot, "main")
-    }
+    assertThat(File(projectDir, "build/generated/ktjni/main"))
+      .transform { it.resolve("com_example_Example.h") }
+      .hasText(ExpectedOutcome)
   }
 
-  @Test fun `latest - generates headers for Java`() {
-    projectRoot.writeJavaExampleFile()
+  @Test fun minJavaLibrary() {
+    val projectDir = File(fixturesDir, "min/java-library")
+    assertThat(createCleanTestRunner(projectDir))
+      .taskOutcomes("generateJniHeaders", "generateMainJniHeaders")
+      .containsOnly(TaskOutcome.SUCCESS)
 
-    buildProject(buildFile) {
-      plugins {
-        java()
-      }
+    assertThat(createTestRunner(projectDir))
+      .taskOutcomes("generateJniHeaders", "generateMainJniHeaders")
+      .containsOnly(TaskOutcome.UP_TO_DATE)
 
-      java()
-    }
-
-    assertRuns(
-      projectDir = projectRoot,
-      compatibleMatrix = Latest,
-      android = false,
-    ) { firstRun, secondRun ->
-      firstRun
-        .assertVariantOutcome(TaskOutcome.SUCCESS, "main")
-      secondRun
-        .assertVariantOutcome(TaskOutcome.UP_TO_DATE, "main")
-      assertVariantHeaders(projectRoot, "main")
-    }
+    assertThat(File(projectDir, "build/generated/ktjni/main"))
+      .transform { it.resolve("com_example_Example.h") }
+      .hasText(ExpectedOutcome)
   }
 
-  @Test fun `min - generates headers for Java`() {
-    projectRoot.writeJavaExampleFile()
+  @Test fun latestKotlinJvmWithJava() {
+    val projectDir = File(fixturesDir, "latest/kotlin-jvm-with-java")
+    assertThat(createCleanTestRunner(projectDir))
+      .taskOutcomes("generateJniHeaders", "generateMainJniHeaders")
+      .containsOnly(TaskOutcome.SUCCESS)
 
-    buildProject(buildFile) {
-      plugins {
-        java()
-      }
+    assertThat(createTestRunner(projectDir))
+      .taskOutcomes("generateJniHeaders", "generateMainJniHeaders")
+      .containsOnly(TaskOutcome.UP_TO_DATE)
 
-      java()
-    }
+    assertThat(File(projectDir, "build/generated/ktjni/main"))
+      .transform { it.resolve("com_example_Example.h") }
+      .hasText(ExpectedOutcome)
 
-    assertRuns(
-      projectDir = projectRoot,
-      compatibleMatrix = Min,
-      android = false,
-    ) { firstRun, secondRun ->
-      firstRun
-        .assertVariantOutcome(TaskOutcome.SUCCESS, "main")
-      secondRun
-        .assertVariantOutcome(TaskOutcome.UP_TO_DATE, "main")
-      assertVariantHeaders(projectRoot, "main")
-    }
+    // Verify the java one exists.
+    assertThat(File(projectDir, "build/generated/ktjni/main"))
+      .transform { it.resolve("com_example_OtherExample.h") }
+      .exists()
   }
 
-  @Test fun `latest - generates headers for Scala`() {
-    projectRoot.writeScalaExampleFile()
+  @Test fun minKotlinJvmWithJava() {
+    val projectDir = File(fixturesDir, "min/kotlin-jvm-with-java")
+    assertThat(createCleanTestRunner(projectDir))
+      .taskOutcomes("generateJniHeaders", "generateMainJniHeaders")
+      .containsOnly(TaskOutcome.SUCCESS)
 
-    buildProject(buildFile) {
-      plugins {
-        scala()
-      }
+    assertThat(createTestRunner(projectDir))
+      .taskOutcomes("generateJniHeaders", "generateMainJniHeaders")
+      .containsOnly(TaskOutcome.UP_TO_DATE)
 
-      scala {
-        // Looks like some scala plugin bug is forcing this: https://github.com/gradle/gradle/issues/36466
-        additionalParameters = true
-        jdk = 17
-      }
-    }
+    assertThat(File(projectDir, "build/generated/ktjni/main"))
+      .transform { it.resolve("com_example_Example.h") }
+      .hasText(ExpectedOutcome)
 
-    assertRuns(
-      projectDir = projectRoot,
-      compatibleMatrix = Latest,
-      android = false,
-    ) { firstRun, secondRun ->
-      firstRun
-        .assertVariantOutcome(TaskOutcome.SUCCESS, "main")
-      secondRun
-        .assertVariantOutcome(TaskOutcome.UP_TO_DATE, "main")
-      assertVariantHeaders(projectRoot, "main")
-    }
+    // Verify the java one exists.
+    assertThat(File(projectDir, "build/generated/ktjni/main"))
+      .transform { it.resolve("com_example_OtherExample.h") }
+      .exists()
   }
 
-  @Test fun `min - generates headers for Scala`() {
-    projectRoot.writeScalaExampleFile()
+  @Test fun latestScala() {
+    val projectDir = File(fixturesDir, "latest/scala")
+    assertThat(createCleanTestRunner(projectDir))
+      .taskOutcomes("generateJniHeaders", "generateMainJniHeaders")
+      .containsOnly(TaskOutcome.SUCCESS)
 
-    buildProject(buildFile) {
-      plugins {
-        scala()
-      }
+    assertThat(createTestRunner(projectDir))
+      .taskOutcomes("generateJniHeaders", "generateMainJniHeaders")
+      .containsOnly(TaskOutcome.UP_TO_DATE)
 
-      scala {
-        scalaVersion = Min.scala
-      }
-    }
+    assertThat(File(projectDir, "build/generated/ktjni/main"))
+      .transform { it.resolve("com_example_Example.h") }
+      .hasText(ExpectedOutcome)
+  }
 
-    assertRuns(
-      projectDir = projectRoot,
-      compatibleMatrix = Min,
-      android = false,
-    ) { firstRun, secondRun ->
-      firstRun
-        .assertVariantOutcome(TaskOutcome.SUCCESS, "main")
-      secondRun
-        .assertVariantOutcome(TaskOutcome.UP_TO_DATE, "main")
-      assertVariantHeaders(projectRoot, "main")
-    }
+  @Test fun minScala() {
+    val projectDir = File(fixturesDir, "min/scala")
+    assertThat(createCleanTestRunner(projectDir))
+      .taskOutcomes("generateJniHeaders", "generateMainJniHeaders")
+      .containsOnly(TaskOutcome.SUCCESS)
+
+    assertThat(createTestRunner(projectDir))
+      .taskOutcomes("generateJniHeaders", "generateMainJniHeaders")
+      .containsOnly(TaskOutcome.UP_TO_DATE)
+
+    assertThat(File(projectDir, "build/generated/ktjni/main"))
+      .transform { it.resolve("com_example_Example.h") }
+      .hasText(ExpectedOutcome)
   }
 }

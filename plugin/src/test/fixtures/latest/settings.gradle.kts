@@ -40,7 +40,11 @@ dependencyResolutionManagement {
   }
 }
 
-include(":kotlin-android-application")
-include(":kotlin-android-library")
 include(":java-android-application")
 include(":java-android-library")
+include(":java-library")
+include(":kotlin-android-application")
+include(":kotlin-android-library")
+include(":kotlin-jvm")
+include(":kotlin-jvm-with-java")
+include(":scala")

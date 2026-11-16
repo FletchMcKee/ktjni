@@ -194,12 +194,13 @@ class AndroidPluginTest {
   }
 }
 
-private fun createCleanTestRunner(projectDir: File): BuildResult {
+// TODO: Move this at the end of the migration
+internal fun createCleanTestRunner(projectDir: File): BuildResult {
   File(projectDir, "build").deleteRecursively()
   return createTestRunner(projectDir)
 }
 
-private fun createTestRunner(
+internal fun createTestRunner(
   projectDir: File,
   vararg tasks: String = arrayOf("generateJniHeaders"),
 ): BuildResult {
@@ -221,5 +222,5 @@ private fun createTestRunner(
     }.build()
 }
 
-private val fixturesDir = File("src/test/fixtures")
+internal val fixturesDir = File("src/test/fixtures")
 private const val MIN_GRADLE_VERSION = "8.14.7"
