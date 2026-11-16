@@ -11,6 +11,12 @@ internal fun Project.configureSpotless() {
   apply(plugin = "com.diffplug.spotless")
   @Suppress("UnstableApiUsage")
   spotless {
+    java {
+      target("src/**/*.java")
+      licenseHeaderFile(isolated.rootProject.projectDirectory.file("spotless/copyright.txt"))
+      endWithNewline()
+    }
+
     kotlin {
       target("src/**/*.kt")
       ktlint(libs.findVersion("ktlint").get().requiredVersion)

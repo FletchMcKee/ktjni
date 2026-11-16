@@ -18,9 +18,6 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v6
 
-      - name: Publish plugin to localRepo repository
-        run: ./gradlew :plugin:publishAllPublicationsToLocalRepoRepository
-
       - name: Publish artifacts
         run: ./gradlew publish
         env:
